@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Elmer: build dam VTU",
+      "type": "shell",
+      "command": "cd Elmer && rm -rf mesh results && mkdir -p mesh results && python3 build_curved_dam_geometry.py && /Users/alistairdavies/elmerfem/bin/ElmerGrid 14 2 curved_dam_mesh.msh -autoclean -out mesh && ELMER_HOME=/Users/alistairdavies/elmerfem ELMER_MODULES_PATH=/Users/alistairdavies/elmerfem/share/elmersolver/lib /Users/alistairdavies/elmerfem/bin/ElmerSolver dam_model.sif",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}

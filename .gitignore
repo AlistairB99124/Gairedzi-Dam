@@ -1,0 +1,13 @@
+.DS_Store
+.venv/
+__pycache__/
+
+results/
+
+Elmer/mesh/
+Elmer/mesh_out/
+Elmer/mesh_placeholder/
+Elmer/mesh_refined_check/
+Elmer/mesh_thickness_check/
+
+Elmer/dam_model_tailwater_*.sif

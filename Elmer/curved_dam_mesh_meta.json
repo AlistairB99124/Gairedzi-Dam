@@ -1,0 +1,12 @@
+{
+  "station_count": 154,
+  "vertical_layers": 4,
+  "arch_subdivisions": 3,
+  "wall_thickness_m": 4.0,
+  "dam_height_m": 30.0,
+  "mesh_size_m": 1.0,
+  "thickness_layers": 2,
+  "crest_detail_height_m": 2.0,
+  "crest_extra_thickness_m": 1.0,
+  "abutment_segment_count": 6
+}

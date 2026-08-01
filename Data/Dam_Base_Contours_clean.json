@@ -1,0 +1,262 @@
+[
+    {
+        "chainage": 0,
+        "contour": 95,
+        "height": 0
+    },
+    {
+        "chainage": 2,
+        "contour": 94,
+        "height": 1
+    },
+    {
+        "chainage": 3,
+        "contour": 93,
+        "height": 2
+    },
+    {
+        "chainage": 4,
+        "contour": 92,
+        "height": 3
+    },
+    {
+        "chainage": 5,
+        "contour": 91,
+        "height": 4
+    },
+    {
+        "chainage": 7,
+        "contour": 90,
+        "height": 5
+    },
+    {
+        "chainage": 8,
+        "contour": 89,
+        "height": 6
+    },
+    {
+        "chainage": 9,
+        "contour": 88,
+        "height": 7
+    },
+    {
+        "chainage": 10,
+        "contour": 87,
+        "height": 8
+    },
+    {
+        "chainage": 11,
+        "contour": 86,
+        "height": 9
+    },
+    {
+        "chainage": 13,
+        "contour": 85,
+        "height": 10
+    },
+    {
+        "chainage": 14,
+        "contour": 84,
+        "height": 11
+    },
+    {
+        "chainage": 16,
+        "contour": 83,
+        "height": 12
+    },
+    {
+        "chainage": 17,
+        "contour": 82,
+        "height": 13
+    },
+    {
+        "chainage": 18,
+        "contour": 81,
+        "height": 14
+    },
+    {
+        "chainage": 21,
+        "contour": 80,
+        "height": 15
+    },
+    {
+        "chainage": 23,
+        "contour": 79,
+        "height": 16
+    },
+    {
+        "chainage": 26,
+        "contour": 78,
+        "height": 17
+    },
+    {
+        "chainage": 28,
+        "contour": 77,
+        "height": 18
+    },
+    {
+        "chainage": 31,
+        "contour": 76,
+        "height": 19
+    },
+    {
+        "chainage": 33,
+        "contour": 75,
+        "height": 20
+    },
+    {
+        "chainage": 34,
+        "contour": 74,
+        "height": 21
+    },
+    {
+        "chainage": 35,
+        "contour": 73,
+        "height": 22
+    },
+    {
+        "chainage": 37,
+        "contour": 72,
+        "height": 23
+    },
+    {
+        "chainage": 41,
+        "contour": 71,
+        "height": 24
+    },
+    {
+        "chainage": 45,
+        "contour": 70,
+        "height": 25
+    },
+    {
+        "chainage": 51,
+        "contour": 69,
+        "height": 26
+    },
+    {
+        "chainage": 56,
+        "contour": 69,
+        "height": 26
+    },
+    {
+        "chainage": 66,
+        "contour": 70,
+        "height": 25
+    },
+    {
+        "chainage": 70,
+        "contour": 71,
+        "height": 24
+    },
+    {
+        "chainage": 76,
+        "contour": 72,
+        "height": 23
+    },
+    {
+        "chainage": 79,
+        "contour": 73,
+        "height": 22
+    },
+    {
+        "chainage": 83,
+        "contour": 74,
+        "height": 21
+    },
+    {
+        "chainage": 86,
+        "contour": 75,
+        "height": 20
+    },
+    {
+        "chainage": 91,
+        "contour": 76,
+        "height": 19
+    },
+    {
+        "chainage": 92,
+        "contour": 77,
+        "height": 18
+    },
+    {
+        "chainage": 94,
+        "contour": 78,
+        "height": 17
+    },
+    {
+        "chainage": 96,
+        "contour": 79,
+        "height": 16
+    },
+    {
+        "chainage": 97,
+        "contour": 80,
+        "height": 15
+    },
+    {
+        "chainage": 99,
+        "contour": 81,
+        "height": 14
+    },
+    {
+        "chainage": 100,
+        "contour": 82,
+        "height": 13
+    },
+    {
+        "chainage": 101,
+        "contour": 82,
+        "height": 13
+    },
+    {
+        "chainage": 102,
+        "contour": 83,
+        "height": 12
+    },
+    {
+        "chainage": 103,
+        "contour": 84,
+        "height": 11
+    },
+    {
+        "chainage": 104,
+        "contour": 84,
+        "height": 11
+    },
+    {
+        "chainage": 118,
+        "contour": 89,
+        "height": 6
+    },
+    {
+        "chainage": 120,
+        "contour": 90,
+        "height": 5
+    },
+    {
+        "chainage": 121,
+        "contour": 91,
+        "height": 4
+    },
+    {
+        "chainage": 123,
+        "contour": 92,
+        "height": 3
+    },
+    {
+        "chainage": 126,
+        "contour": 93,
+        "height": 2
+    },
+    {
+        "chainage": 129,
+        "contour": 94,
+        "height": 1
+    },
+    {
+        "chainage": 132,
+        "contour": 95,
+        "height": 0
+    }
+]
