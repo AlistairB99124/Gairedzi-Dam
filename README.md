@@ -2,6 +2,20 @@
 
 This repository contains a first-pass structural analysis workflow for a curved concrete arch dam using Elmer FEM.
 
+## Versioning
+
+This project uses a client-friendly semantic version strategy:
+
+- Major.Minor.Patch (example: 1.2.0)
+- Major: workflow changes that may affect client usage
+- Minor: new features and automation improvements
+- Patch: bug fixes and reliability improvements
+
+Version files:
+
+- `VERSION`: current client-facing version
+- `RELEASE_NOTES.md`: plain-language summary of changes
+
 The project combines:
 
 - client/source data in `Data/`
@@ -90,6 +104,7 @@ Setup and run are now separated:
 - `run.bat`: runs analysis and calls setup only if required
 - `Run_Gairedzi.bat`: compatibility wrapper that calls `run.bat`
 - `update.bat`: updates from GitHub for both cloned repos and ZIP-downloaded folders
+- `VERSION`: current release number shown by run and update scripts
 
 What it does automatically:
 

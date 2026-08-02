@@ -4,6 +4,14 @@ setlocal
 set ROOT_DIR=%~dp0
 set SETUP_FLAG=%ROOT_DIR%\.deps\setup_complete.flag
 set VENV_PY=%ROOT_DIR%\.venv\Scripts\python.exe
+set APP_VERSION=unknown
+
+if exist "%ROOT_DIR%\VERSION" (
+  set /p APP_VERSION=<"%ROOT_DIR%\VERSION"
+)
+
+echo Gairedzi Dam Analysis - Version %APP_VERSION%
+echo.
 
 if not exist "%SETUP_FLAG%" goto do_setup
 if not exist "%VENV_PY%" goto do_setup

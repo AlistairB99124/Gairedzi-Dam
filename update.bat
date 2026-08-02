@@ -2,8 +2,16 @@
 setlocal
 
 set ROOT_DIR=%~dp0
+set APP_VERSION=unknown
+
+if exist "%ROOT_DIR%\VERSION" (
+  set /p APP_VERSION=<"%ROOT_DIR%\VERSION"
+)
+
 cd /d "%ROOT_DIR%"
 
+echo Gairedzi Dam Updater - Version %APP_VERSION%
+echo.
 echo Updating Gairedzi-Dam from GitHub...
 echo.
 
