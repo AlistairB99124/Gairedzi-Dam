@@ -5,6 +5,8 @@ set ROOT_DIR=%~dp0
 set SETUP_FLAG=%ROOT_DIR%\.deps\setup_complete.flag
 set VENV_PY=%ROOT_DIR%\.venv\Scripts\python.exe
 set APP_VERSION=unknown
+set RESULT_VTU=
+set PARAVIEW_EXE=
 
 if exist "%ROOT_DIR%\VERSION" (
   set /p APP_VERSION=<"%ROOT_DIR%\VERSION"
@@ -36,6 +38,44 @@ if errorlevel 1 (
 ) else (
   echo.
   echo Analysis finished successfully.
+
+  rem Find the newest VTU output in Elmer\results
+  if exist "%ROOT_DIR%\Elmer\results\dam_results_t0001.vtu" (
+    set "RESULT_VTU=%ROOT_DIR%\Elmer\results\dam_results_t0001.vtu"
+  ) else (
+    for /f "delims=" %%F in ('dir /b /a-d /o-d "%ROOT_DIR%\Elmer\results\*.vtu" 2^>nul') do (
+      if not defined RESULT_VTU set "RESULT_VTU=%ROOT_DIR%\Elmer\results\%%F"
+    )
+  )
+
+  if defined RESULT_VTU (
+    where paraview >nul 2>&1
+    if not errorlevel 1 (
+      set "PARAVIEW_EXE=paraview"
+    ) else (
+      for /f "delims=" %%P in ('dir /b /s "C:\Program Files\ParaView*\bin\paraview.exe" 2^>nul') do (
+        if not defined PARAVIEW_EXE set "PARAVIEW_EXE=%%P"
+      )
+      if not defined PARAVIEW_EXE (
+        for /f "delims=" %%P in ('dir /b /s "C:\Program Files (x86)\ParaView*\bin\paraview.exe" 2^>nul') do (
+          if not defined PARAVIEW_EXE set "PARAVIEW_EXE=%%P"
+        )
+      )
+    )
+
+    if defined PARAVIEW_EXE (
+      echo.
+      echo Opening result in ParaView...
+      start "" "%PARAVIEW_EXE%" "%RESULT_VTU%"
+    ) else (
+      echo.
+      echo ParaView was not found. Install ParaView to open:
+      echo %RESULT_VTU%
+    )
+  ) else (
+    echo.
+    echo No VTU result file was found under Elmer\results.
+  )
 )
 
 echo.
