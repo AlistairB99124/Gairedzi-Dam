@@ -1,29 +1,16 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string]$RootDir,
-
-    [string]$GithubToken = $env:GAIREDZI_GITHUB_TOKEN
+    [string]$RootDir
 )
 
 $ErrorActionPreference = "Stop"
 
-if ([string]::IsNullOrWhiteSpace($GithubToken) -and -not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
-    $GithubToken = $env:GITHUB_TOKEN
-}
-
 $zipUrls = @(
-    "https://api.github.com/repos/AlistairB99124/Gairedzi-Dam/zipball/main",
     "https://github.com/AlistairB99124/Gairedzi-Dam/archive/refs/heads/main.zip",
-    "https://codeload.github.com/AlistairB99124/Gairedzi-Dam/zip/refs/heads/main",
-    "https://api.github.com/repos/AlistairB99124/Gairedzi/zipball/main",
-    "https://github.com/AlistairB99124/Gairedzi/archive/refs/heads/main.zip",
-    "https://codeload.github.com/AlistairB99124/Gairedzi/zip/refs/heads/main"
+    "https://codeload.github.com/AlistairB99124/Gairedzi-Dam/zip/refs/heads/main"
 )
 
 $requestHeaders = @{ "User-Agent" = "Gairedzi-Updater" }
-if (-not [string]::IsNullOrWhiteSpace($GithubToken)) {
-    $requestHeaders["Authorization"] = "Bearer $GithubToken"
-}
 $normalizedRoot = $RootDir.Trim().Trim('"').TrimEnd([char[]]@([char]'\', [char]'/'))
 if ([string]::IsNullOrWhiteSpace($normalizedRoot)) {
     throw "RootDir is empty or invalid."
@@ -47,7 +34,6 @@ New-Item -ItemType Directory -Force -Path $extractDir | Out-Null
 try {
     Write-Host "Downloading latest project ZIP..."
     $downloaded = $false
-    $statusCodes = @()
     foreach ($url in $zipUrls) {
         try {
             Write-Host "Trying: $url"
@@ -56,30 +42,12 @@ try {
             break
         }
         catch {
-            $code = $null
-            if ($_.Exception -and $_.Exception.Response -and $_.Exception.Response.StatusCode) {
-                $code = [int]$_.Exception.Response.StatusCode
-                $statusCodes += $code
-            }
-
             Write-Host "Download failed from this URL, trying next..."
         }
     }
 
     if (-not $downloaded) {
-        if (($statusCodes -contains 401) -or ($statusCodes -contains 403) -or ($statusCodes -contains 404)) {
-            throw @"
-Could not download update ZIP.
-If this repository is private, set a GitHub token first and retry.
-
-PowerShell (current session):
-  `$env:GAIREDZI_GITHUB_TOKEN = "<your_token>"
-
-Then run update.bat again.
-"@
-        }
-
-        throw "Could not download update ZIP from any known URL. Check repository visibility, branch name, or network access."
+        throw "Could not download update ZIP. Check internet access and confirm the repository is public."
     }
 
     Write-Host "Extracting ZIP..."

@@ -130,9 +130,7 @@ Important notes:
 - first run may show Windows prompts for installation permissions
 - internet access is required for first-time dependency installation
 - if winget cannot install Elmer automatically, install Elmer manually and ensure `ElmerGrid` and `ElmerSolver` are in PATH
-- if using `update.bat` from a ZIP copy and the GitHub repository is private, set a token first in PowerShell:
-  - `$env:GAIREDZI_GITHUB_TOKEN = "<your_token>"`
-  - then run `update.bat` in the same terminal session
+- `update.bat` works directly from ZIP-downloaded folders because this repository is public
 
 Run logs are saved under `results/logs/` for traceability and reproducibility.
 
