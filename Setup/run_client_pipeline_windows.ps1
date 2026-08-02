@@ -133,7 +133,7 @@ function Ensure-Python {
         throw "Python is missing and winget is not available. Install Python 3 manually and rerun."
     }
 
-    & winget install --id Python.Python.3.11 --exact --accept-package-agreements --accept-source-agreements
+    $null = & winget install --id Python.Python.3.11 --exact --accept-package-agreements --accept-source-agreements
     Refresh-PathFromSystem
     $pythonCmd = Resolve-PythonCommand
     if (-not $pythonCmd) {
@@ -160,7 +160,7 @@ function Ensure-Elmer {
     $packageIds = @("CSC.Elmer", "ElmerFEM.Elmer")
     foreach ($pkg in $packageIds) {
         try {
-            & winget install --id $pkg --exact --accept-package-agreements --accept-source-agreements
+            $null = & winget install --id $pkg --exact --accept-package-agreements --accept-source-agreements
             $installed = $true
             break
         }
