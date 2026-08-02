@@ -106,6 +106,29 @@ function Resolve-PythonCommand {
     return $null
 }
 
+function Resolve-ElmerFromCommonPaths {
+    $candidates = @(
+        "$env:ProgramFiles\Elmer*\bin",
+        "$env:ProgramFiles\Elmer\bin",
+        "$env:ProgramFiles\elmer\bin",
+        "$env:LOCALAPPDATA\Programs\Elmer*\bin",
+        "$env:LOCALAPPDATA\Programs\Elmer\bin",
+        "$env:LOCALAPPDATA\Programs\elmer\bin"
+    )
+
+    foreach ($pattern in $candidates) {
+        foreach ($dir in (Get-ChildItem -Path $pattern -Directory -ErrorAction SilentlyContinue)) {
+            $grid = Join-Path $dir.FullName "ElmerGrid.exe"
+            $solver = Join-Path $dir.FullName "ElmerSolver.exe"
+            if ((Test-Path $grid) -and (Test-Path $solver)) {
+                return @{ Grid = $grid; Solver = $solver; Home = $null; Modules = $null }
+            }
+        }
+    }
+
+    return $null
+}
+
 function Invoke-Python {
     param(
         [hashtable]$PythonCmd,
@@ -150,6 +173,11 @@ function Ensure-Elmer {
         return @{ Grid = $grid; Solver = $solver; Home = $null; Modules = $null }
     }
 
+    $resolved = Resolve-ElmerFromCommonPaths
+    if ($resolved) {
+        return $resolved
+    }
+
     Write-Host "Elmer not found in PATH. Attempting install with winget..."
     $winget = Find-Exe "winget"
     if (-not $winget) {
@@ -176,11 +204,16 @@ function Ensure-Elmer {
     Refresh-PathFromSystem
     $grid = Find-Exe "ElmerGrid"
     $solver = Find-Exe "ElmerSolver"
-    if (-not $grid -or -not $solver) {
-        throw "Elmer install completed but binaries were not detected in PATH. Open a new terminal session and retry."
+    if ($grid -and $solver) {
+        return @{ Grid = $grid; Solver = $solver; Home = $null; Modules = $null }
     }
 
-    return @{ Grid = $grid; Solver = $solver; Home = $null; Modules = $null }
+    $resolved = Resolve-ElmerFromCommonPaths
+    if ($resolved) {
+        return $resolved
+    }
+
+    throw "Elmer install completed but binaries were not found. Open a new terminal session and retry. If still failing, install Elmer manually and add its bin folder (containing ElmerGrid.exe and ElmerSolver.exe) to PATH."
 }
 
 if (-not (Test-Path $ElmerDir)) {
