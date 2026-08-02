@@ -6,7 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $zipUrl = "https://github.com/AlistairB99124/Gairedzi-Dam/archive/refs/heads/main.zip"
-$normalizedRoot = $RootDir.Trim().Trim('"').TrimEnd('\\', '/')
+$normalizedRoot = $RootDir.Trim().Trim('"').TrimEnd([char[]]@([char]'\', [char]'/'))
 if ([string]::IsNullOrWhiteSpace($normalizedRoot)) {
     throw "RootDir is empty or invalid."
 }
