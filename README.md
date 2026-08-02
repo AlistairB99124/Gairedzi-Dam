@@ -80,12 +80,15 @@ Note: current scripts/task file use local Elmer paths under `/Users/alistairdavi
 
 ## One-Click Client Runner (Windows - recommended)
 
-For non-technical use on Windows, use the double-click launcher:
+For non-technical use on Windows, use:
 
-- `Run_Gairedzi.bat`
+- `run.bat` (main entry point)
 
-This is now the only client-facing executable at repository root.
-All helper scripts are kept in `Setup/`.
+Setup and run are now separated:
+
+- `Setup/setup.bat`: installs prerequisites only (Python deps and Elmer)
+- `run.bat`: runs analysis and calls setup only if required
+- `Run_Gairedzi.bat`: compatibility wrapper that calls `run.bat`
 
 What it does automatically:
 
@@ -101,7 +104,7 @@ What it does automatically:
 Client workflow (Windows):
 
 1. update raw input data under `Data/`
-2. double-click `Run_Gairedzi.bat`
+2. double-click `run.bat`
 3. wait for completion and review:
    - `Elmer/results/client_stress_report.png`
    - `Elmer/results/stress_summary.json`

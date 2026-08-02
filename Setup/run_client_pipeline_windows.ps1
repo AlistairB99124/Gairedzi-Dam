@@ -1,10 +1,18 @@
 $ErrorActionPreference = "Stop"
 
+param(
+    [ValidateSet("setup", "run")]
+    [string]$Mode = "run"
+)
+
 $SetupDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $SetupDir
 $ElmerDir = Join-Path $RootDir "Elmer"
 $LogDir = Join-Path $RootDir "results\logs"
 New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
+$SetupStateDir = Join-Path $RootDir ".deps"
+$SetupStatePath = Join-Path $SetupStateDir "setup_state.json"
+$SetupFlagPath = Join-Path $SetupStateDir "setup_complete.flag"
 
 $Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $LogFile = Join-Path $LogDir ("run_windows_" + $Timestamp + ".log")
@@ -12,6 +20,25 @@ $LogFile = Join-Path $LogDir ("run_windows_" + $Timestamp + ".log")
 function Write-Section([string]$Message) {
     Write-Host ""
     Write-Host "==== $Message ===="
+}
+
+function Save-SetupState {
+    param(
+        [string]$VenvPython,
+        [hashtable]$ElmerInfo
+    )
+
+    New-Item -ItemType Directory -Force -Path $SetupStateDir | Out-Null
+    $state = [ordered]@{
+        mode = "setup"
+        timestamp = (Get-Date).ToString("o")
+        rootDir = $RootDir
+        venvPython = $VenvPython
+        elmerGrid = $ElmerInfo.Grid
+        elmerSolver = $ElmerInfo.Solver
+    }
+    $state | ConvertTo-Json -Depth 4 | Set-Content -Path $SetupStatePath -Encoding UTF8
+    Set-Content -Path $SetupFlagPath -Value "ok" -Encoding ASCII
 }
 
 function Invoke-CommandChecked {
@@ -122,6 +149,8 @@ function Resolve-PythonCommand {
 
 function Resolve-ElmerFromCommonPaths {
     $candidates = @(
+        "$RootDir\.deps\elmer\*\bin",
+        "$RootDir\.deps\elmer\bin",
         "$env:SystemDrive\CSC\elmerfem\bin",
         "$env:SystemDrive\Elmer\bin",
         "$env:ProgramFiles\Elmer*\bin",
@@ -277,9 +306,15 @@ function Invoke-Python {
 }
 
 function Ensure-Python {
+    param([bool]$InstallIfMissing = $true)
+
     $pythonCmd = Resolve-PythonCommand
     if ($pythonCmd) {
         return $pythonCmd
+    }
+
+    if (-not $InstallIfMissing) {
+        throw "Python is not available. Run Setup\\setup.bat first."
     }
 
     Write-Host "Python not found. Attempting install with winget..."
@@ -298,6 +333,8 @@ function Ensure-Python {
 }
 
 function Ensure-Elmer {
+    param([bool]$InstallIfMissing = $true)
+
     $grid = Find-Exe "ElmerGrid"
     $solver = Find-Exe "ElmerSolver"
 
@@ -313,6 +350,10 @@ function Ensure-Elmer {
     $resolved = Resolve-ElmerByRecursiveSearch
     if ($resolved) {
         return $resolved
+    }
+
+    if (-not $InstallIfMissing) {
+        throw "Elmer is not available. Run Setup\\setup.bat first."
     }
 
     Write-Host "Elmer not found in PATH. Attempting install with winget..."
@@ -393,8 +434,10 @@ try {
     Write-Host "Log file: $LogFile"
     Write-Host "============================================================"
 
+    $installIfMissing = $Mode -eq "setup"
+
     Write-Section "1/6 Preparing Python"
-    $pythonCmd = Ensure-Python
+    $pythonCmd = Ensure-Python -InstallIfMissing:$installIfMissing
 
     $VenvDir = Join-Path $RootDir ".venv"
     $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
@@ -416,9 +459,18 @@ try {
     Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt")) -StepName "dependency install"
 
     Write-Section "2/6 Detecting Elmer"
-    $elmer = Ensure-Elmer
+    $elmer = Ensure-Elmer -InstallIfMissing:$installIfMissing
     Write-Host "Using ElmerGrid: $($elmer.Grid)"
     Write-Host "Using ElmerSolver: $($elmer.Solver)"
+
+    if ($Mode -eq "setup") {
+        Save-SetupState -VenvPython $VenvPython -ElmerInfo $elmer
+        Write-Host ""
+        Write-Host "Setup complete."
+        Write-Host "Setup state file: $SetupStatePath"
+        Write-Host "Run flag file: $SetupFlagPath"
+        return
+    }
 
     Write-Section "3/6 Rebuilding geometry and mesh from Data"
     Invoke-CommandChecked -Exe $VenvPython -Args @((Join-Path $ElmerDir "build_curved_dam_geometry.py")) -StepName "geometry build"
