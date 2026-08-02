@@ -108,9 +108,14 @@ function Resolve-PythonCommand {
 
 function Resolve-ElmerFromCommonPaths {
     $candidates = @(
+        "$env:SystemDrive\CSC\elmerfem\bin",
+        "$env:SystemDrive\Elmer\bin",
         "$env:ProgramFiles\Elmer*\bin",
         "$env:ProgramFiles\Elmer\bin",
         "$env:ProgramFiles\elmer\bin",
+        "$env:ProgramFiles(x86)\Elmer*\bin",
+        "$env:ProgramFiles(x86)\Elmer\bin",
+        "$env:ProgramFiles(x86)\elmer\bin",
         "$env:LOCALAPPDATA\Programs\Elmer*\bin",
         "$env:LOCALAPPDATA\Programs\Elmer\bin",
         "$env:LOCALAPPDATA\Programs\elmer\bin"
@@ -127,6 +132,47 @@ function Resolve-ElmerFromCommonPaths {
     }
 
     return $null
+}
+
+function Resolve-ElmerByRecursiveSearch {
+    $roots = @(
+        "$env:SystemDrive\CSC",
+        "$env:SystemDrive\Elmer",
+        "$env:ProgramFiles",
+        "$env:ProgramFiles(x86)",
+        "$env:LOCALAPPDATA\Programs"
+    )
+
+    foreach ($root in $roots) {
+        if (-not (Test-Path $root)) {
+            continue
+        }
+
+        $gridHit = Get-ChildItem -Path $root -Filter "ElmerGrid.exe" -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        if (-not $gridHit) {
+            continue
+        }
+
+        $binDir = Split-Path -Parent $gridHit.FullName
+        $solver = Join-Path $binDir "ElmerSolver.exe"
+        if (Test-Path $solver) {
+            return @{ Grid = $gridHit.FullName; Solver = $solver; Home = $null; Modules = $null }
+        }
+    }
+
+    return $null
+}
+
+function Try-WingetInstallPackage {
+    param([string]$PackageId)
+
+    $null = & winget install --id $PackageId --exact --accept-package-agreements --accept-source-agreements
+    if ($LASTEXITCODE -eq 0) {
+        return $true
+    }
+
+    Write-Host "winget install for $PackageId returned exit code $LASTEXITCODE"
+    return $false
 }
 
 function Invoke-Python {
@@ -178,6 +224,11 @@ function Ensure-Elmer {
         return $resolved
     }
 
+    $resolved = Resolve-ElmerByRecursiveSearch
+    if ($resolved) {
+        return $resolved
+    }
+
     Write-Host "Elmer not found in PATH. Attempting install with winget..."
     $winget = Find-Exe "winget"
     if (-not $winget) {
@@ -185,12 +236,13 @@ function Ensure-Elmer {
     }
 
     $installed = $false
-    $packageIds = @("CSC.Elmer", "ElmerFEM.Elmer")
+    $packageIds = @("CSC.Elmer", "ElmerFEM.Elmer", "Elmer.Elmer")
     foreach ($pkg in $packageIds) {
         try {
-            $null = & winget install --id $pkg --exact --accept-package-agreements --accept-source-agreements
-            $installed = $true
-            break
+            if (Try-WingetInstallPackage -PackageId $pkg) {
+                $installed = $true
+                break
+            }
         }
         catch {
             Write-Host "winget package $pkg not available or install failed, trying next option..."
@@ -209,6 +261,11 @@ function Ensure-Elmer {
     }
 
     $resolved = Resolve-ElmerFromCommonPaths
+    if ($resolved) {
+        return $resolved
+    }
+
+    $resolved = Resolve-ElmerByRecursiveSearch
     if ($resolved) {
         return $resolved
     }
