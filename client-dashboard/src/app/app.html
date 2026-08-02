@@ -1,0 +1,86 @@
+<main class="page">
+  <header class="hero">
+    <p class="kicker">Gairedzi Dam Data Dashboard</p>
+    <h1>Client Data Explorer</h1>
+    <p class="subtext">
+      Browse project JSON inputs, inspect structure, and review raw values in one place.
+    </p>
+  </header>
+
+  <section class="layout">
+    <aside class="panel file-list" aria-label="JSON files">
+      <div class="panel-header">
+        <h2>Files</h2>
+        <button type="button" class="btn" (click)="refresh()" [disabled]="isLoading()">
+          {{ isLoading() ? 'Loading...' : 'Refresh' }}
+        </button>
+      </div>
+
+      <ul>
+        @for (file of files(); track file.filename) {
+          <li>
+            <button
+              type="button"
+              class="file-btn"
+              [class.active]="selectedFilename() === file.filename"
+              (click)="onSelectFile(file.filename)"
+              [disabled]="isLoading()"
+            >
+              <span class="name">{{ file.title }}</span>
+              <span class="meta">{{ file.filename }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </aside>
+
+    <section class="panel viewer" aria-live="polite">
+      <div class="panel-header">
+        <h2>{{ selectedFileTitle() }}</h2>
+        @if (lastLoadedAt()) {
+          <span class="stamp">Updated {{ lastLoadedAt() | date: 'mediumTime' }}</span>
+        }
+      </div>
+
+      @if (error()) {
+        <div class="state error">
+          <h3>Could not load file</h3>
+          <p>{{ error() }}</p>
+        </div>
+      } @else if (isLoading()) {
+        <div class="state loading">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Loading {{ selectedFilename() }}...</p>
+        </div>
+      } @else if (summary() && data() !== null) {
+        <div class="summary-grid">
+          <article class="metric">
+            <h3>Root Type</h3>
+            <p>{{ summary()!.rootType }}</p>
+          </article>
+          <article class="metric">
+            <h3>Object Keys</h3>
+            <p>{{ summary()!.objectKeys }}</p>
+          </article>
+          <article class="metric">
+            <h3>Array Nodes</h3>
+            <p>{{ summary()!.arrayNodes }}</p>
+          </article>
+          <article class="metric">
+            <h3>Primitive Values</h3>
+            <p>{{ summary()!.primitiveValues }}</p>
+          </article>
+          <article class="metric">
+            <h3>Max Depth</h3>
+            <p>{{ summary()!.maxDepth }}</p>
+          </article>
+        </div>
+
+        <div class="json-block">
+          <h3>Raw JSON</h3>
+          <pre>{{ data() | json }}</pre>
+        </div>
+      }
+    </section>
+  </section>
+</main>

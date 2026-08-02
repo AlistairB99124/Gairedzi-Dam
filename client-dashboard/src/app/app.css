@@ -1,0 +1,271 @@
+:host {
+  --bg: #f4f6f1;
+  --ink: #1a2220;
+  --muted: #556563;
+  --card: #ffffff;
+  --line: #d9e1dc;
+  --accent: #0f6d57;
+  --accent-strong: #0a4f3f;
+  --warn: #8b1e2d;
+  font-family: 'IBM Plex Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--ink);
+  display: block;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 5% 5%, #d8efe8 0%, transparent 40%),
+    radial-gradient(circle at 95% 20%, #d9e5f5 0%, transparent 35%),
+    var(--bg);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2.25rem 1rem 2rem;
+}
+
+.hero {
+  margin-bottom: 1rem;
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.hero h1 {
+  margin: 0.25rem 0 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.9rem, 3vw, 2.8rem);
+  line-height: 1.1;
+}
+
+.subtext {
+  margin: 0.6rem 0 0;
+  color: var(--muted);
+  max-width: 64ch;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgb(18 42 36 / 8%);
+}
+
+.file-list {
+  padding: 0.8rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.45rem 0.45rem 0.8rem;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.stamp {
+  color: var(--muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.btn {
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.42rem 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.file-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.file-btn {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: #f8fbfa;
+  border-radius: 10px;
+  padding: 0.6rem;
+  cursor: pointer;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.file-btn:hover {
+  border-color: #b8d0c9;
+}
+
+.file-btn.active {
+  border-color: var(--accent);
+  background: #e9f5f2;
+}
+
+.file-btn .name {
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.file-btn .meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.viewer {
+  padding: 0.8rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+}
+
+.metric {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem;
+  background: #fbfcfc;
+}
+
+.metric h3 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric p {
+  margin: 0.32rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.json-block {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.json-block h3 {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.92rem;
+}
+
+.json-block pre {
+  margin: 0;
+  padding: 0.85rem;
+  max-height: 62vh;
+  overflow: auto;
+  background: #fcfdfa;
+  font-family: 'IBM Plex Mono', 'Cascadia Code', Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.state {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1rem;
+}
+
+.state.error {
+  border-color: #e6bcc2;
+  background: #fff7f8;
+}
+
+.state.error h3,
+.state.error p {
+  margin: 0;
+  color: var(--warn);
+}
+
+.state.loading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #c7ddd7;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 980px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 1rem 0.7rem 1.25rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stamp {
+    white-space: normal;
+  }
+}
