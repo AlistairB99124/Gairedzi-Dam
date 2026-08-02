@@ -82,7 +82,10 @@ Note: current scripts/task file use local Elmer paths under `/Users/alistairdavi
 
 For non-technical use on Windows, use the double-click launcher:
 
-- `Run_Gairedzi_Windows.bat`
+- `Run_Gairedzi.bat`
+
+This is now the only client-facing executable at repository root.
+All helper scripts are kept in `Setup/`.
 
 What it does automatically:
 
@@ -98,7 +101,7 @@ What it does automatically:
 Client workflow (Windows):
 
 1. update raw input data under `Data/`
-2. double-click `Run_Gairedzi_Windows.bat`
+2. double-click `Run_Gairedzi.bat`
 3. wait for completion and review:
    - `Elmer/results/client_stress_report.png`
    - `Elmer/results/stress_summary.json`
@@ -115,7 +118,7 @@ Run logs are saved under `results/logs/` for traceability and reproducibility.
 
 If you also run the model on macOS, use:
 
-- `Run_Gairedzi.command`
+- `Setup/Run_Gairedzi.command`
 
 ### Option A: VS Code task
 
