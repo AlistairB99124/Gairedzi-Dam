@@ -22,6 +22,38 @@ function Find-Exe([string]$Name) {
     return $null
 }
 
+function Test-PythonCommand {
+    param(
+        [string]$Exe,
+        [string[]]$PrefixArgs = @()
+    )
+
+    if (-not $Exe) {
+        return $false
+    }
+    if (-not (Test-Path $Exe)) {
+        return $false
+    }
+
+    $allArgs = @()
+    if ($PrefixArgs) {
+        $allArgs += $PrefixArgs
+    }
+    $allArgs += "--version"
+
+    $output = & $Exe @allArgs 2>&1
+    $exitCode = $LASTEXITCODE
+    $text = ($output | Out-String).Trim()
+
+    if ($exitCode -ne 0) {
+        return $false
+    }
+    if ($text -notmatch "^Python\s+\d+\.\d+") {
+        return $false
+    }
+    return $true
+}
+
 function Refresh-PathFromSystem {
     $machinePath = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
     $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
@@ -38,22 +70,26 @@ function Refresh-PathFromSystem {
 
 function Resolve-PythonCommand {
     $pyLauncher = Find-Exe "py"
-    if ($pyLauncher) {
-        try {
-            & $pyLauncher -3 --version | Out-Null
-            return @{ Exe = $pyLauncher; PrefixArgs = @("-3") }
-        }
-        catch {
-        }
+    if (Test-PythonCommand -Exe $pyLauncher -PrefixArgs @("-3")) {
+        return @{ Exe = $pyLauncher; PrefixArgs = @("-3") }
     }
 
     $pythonExe = Find-Exe "python"
-    if ($pythonExe) {
-        try {
-            & $pythonExe --version | Out-Null
-            return @{ Exe = $pythonExe; PrefixArgs = @() }
-        }
-        catch {
+    if (Test-PythonCommand -Exe $pythonExe) {
+        return @{ Exe = $pythonExe; PrefixArgs = @() }
+    }
+
+    $commonInstalls = @(
+        "$env:LOCALAPPDATA\Programs\Python\Python313\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe",
+        "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe",
+        "$env:ProgramFiles\Python313\python.exe",
+        "$env:ProgramFiles\Python312\python.exe",
+        "$env:ProgramFiles\Python311\python.exe"
+    )
+    foreach ($candidate in $commonInstalls) {
+        if (Test-PythonCommand -Exe $candidate) {
+            return @{ Exe = $candidate; PrefixArgs = @() }
         }
     }
 
@@ -91,7 +127,7 @@ function Ensure-Python {
     Refresh-PathFromSystem
     $pythonCmd = Resolve-PythonCommand
     if (-not $pythonCmd) {
-        throw "Python installation did not complete correctly. Install Python manually and rerun."
+        throw "Python installation did not complete correctly. Open a new terminal and rerun. If it still fails, disable the Microsoft Store python app-execution alias and install Python 3.11+ manually."
     }
     return $pythonCmd
 }
@@ -153,11 +189,17 @@ try {
     $pythonCmd = Ensure-Python
 
     $VenvDir = Join-Path $RootDir ".venv"
+    $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
+    if ((Test-Path $VenvDir) -and (-not (Test-Path $VenvPython))) {
+        Remove-Item -Recurse -Force $VenvDir
+    }
     if (-not (Test-Path $VenvDir)) {
         Invoke-Python $pythonCmd -m venv $VenvDir
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create virtual environment at $VenvDir"
+        }
     }
 
-    $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
     if (-not (Test-Path $VenvPython)) {
         throw "Virtual environment python not found at $VenvPython"
     }
