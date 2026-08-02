@@ -9,11 +9,21 @@ echo.
 
 git rev-parse --is-inside-work-tree >nul 2>&1
 if errorlevel 1 (
-  echo This folder is not a git repository.
-  echo Please run this file from the root of a cloned repository.
+  echo No git repository detected. Using ZIP update mode...
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT_DIR%Setup\update_from_zip.ps1" -RootDir "%ROOT_DIR%"
+  if errorlevel 1 (
+    echo.
+    echo ZIP update failed.
+    echo.
+    pause
+    exit /b 1
+  )
+
+  echo.
+  echo ZIP update complete.
   echo.
   pause
-  exit /b 1
+  exit /b 0
 )
 
 git fetch origin

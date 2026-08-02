@@ -89,7 +89,7 @@ Setup and run are now separated:
 - `Setup/setup.bat`: installs prerequisites only (Python deps and Elmer)
 - `run.bat`: runs analysis and calls setup only if required
 - `Run_Gairedzi.bat`: compatibility wrapper that calls `run.bat`
-- `update.bat`: pulls the latest project updates from GitHub
+- `update.bat`: updates from GitHub for both cloned repos and ZIP-downloaded folders
 
 What it does automatically:
 
