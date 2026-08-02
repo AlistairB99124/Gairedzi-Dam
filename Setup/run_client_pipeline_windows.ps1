@@ -41,9 +41,19 @@ function Test-PythonCommand {
     }
     $allArgs += "--version"
 
-    $output = & $Exe @allArgs 2>&1
-    $exitCode = $LASTEXITCODE
-    $text = ($output | Out-String).Trim()
+    $previousErrorAction = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = "Continue"
+        $output = & $Exe @allArgs 2>&1
+        $exitCode = $LASTEXITCODE
+        $text = ($output | Out-String).Trim()
+    }
+    catch {
+        return $false
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorAction
+    }
 
     if ($exitCode -ne 0) {
         return $false
