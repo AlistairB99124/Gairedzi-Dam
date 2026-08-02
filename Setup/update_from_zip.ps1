@@ -6,7 +6,17 @@ param(
 $ErrorActionPreference = "Stop"
 
 $zipUrl = "https://github.com/AlistairB99124/Gairedzi-Dam/archive/refs/heads/main.zip"
-$root = (Resolve-Path $RootDir).Path
+$normalizedRoot = $RootDir.Trim().Trim('"').TrimEnd('\\', '/')
+if ([string]::IsNullOrWhiteSpace($normalizedRoot)) {
+    throw "RootDir is empty or invalid."
+}
+
+$fullRoot = [System.IO.Path]::GetFullPath($normalizedRoot)
+if (-not (Test-Path -LiteralPath $fullRoot -PathType Container)) {
+    throw "Root directory not found: $fullRoot"
+}
+
+$root = (Resolve-Path -LiteralPath $fullRoot).Path
 
 $tmpRoot = Join-Path $env:TEMP ("gairedzi_update_" + [guid]::NewGuid().ToString("N"))
 $zipPath = Join-Path $tmpRoot "repo.zip"
