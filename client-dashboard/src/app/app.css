@@ -27,15 +27,24 @@
   padding: 2.25rem 1rem 2rem;
 }
 
-.hero {
+.hero-toolbar {
   margin-bottom: 1rem;
+  min-height: 132px;
+  align-items: flex-start;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #0f6d57, #2f8f79);
+  color: #f4fffb;
+}
+
+.hero-copy {
+  padding: 0.35rem 0.1rem;
 }
 
 .kicker {
   margin: 0;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--accent);
+  color: #c9f1e6;
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -47,33 +56,22 @@
   line-height: 1.1;
 }
 
+h1 {
+  margin: 0.25rem 0 0;
+  font-family: 'Bitter', Georgia, serif;
+  font-size: clamp(1.9rem, 3vw, 2.8rem);
+  line-height: 1.1;
+}
+
 .subtext {
   margin: 0.6rem 0 0;
-  color: var(--muted);
+  color: #e7fff7;
   max-width: 64ch;
 }
 
 .tabs {
-  display: flex;
-  gap: 0.5rem;
+  display: inline-flex;
   margin-bottom: 0.9rem;
-  flex-wrap: wrap;
-}
-
-.tab {
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--ink);
-  border-radius: 999px;
-  padding: 0.45rem 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.tab.active {
-  border-color: var(--accent);
-  background: #e9f5f2;
-  color: var(--accent-strong);
 }
 
 .toolbar {
@@ -98,6 +96,11 @@
   padding: 0.8rem;
 }
 
+.file-list mat-list-item {
+  height: auto;
+  margin-bottom: 0.4rem;
+}
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -115,21 +118,6 @@
   color: var(--muted);
   font-size: 0.82rem;
   white-space: nowrap;
-}
-
-.btn {
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: #fff;
-  border-radius: 10px;
-  padding: 0.42rem 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
 }
 
 .file-list ul {
@@ -150,6 +138,7 @@
   cursor: pointer;
   display: grid;
   gap: 0.28rem;
+  font-family: inherit;
 }
 
 .file-btn:hover {
@@ -262,21 +251,21 @@
   margin-bottom: 0.9rem;
 }
 
-table {
+.sweep-table {
   border-collapse: collapse;
   width: 100%;
   min-width: 560px;
 }
 
-th,
-td {
+.sweep-table th,
+.sweep-table td {
   border-bottom: 1px solid var(--line);
   padding: 0.55rem 0.6rem;
   text-align: left;
   font-size: 0.9rem;
 }
 
-th {
+.sweep-table th {
   color: var(--muted);
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -290,7 +279,6 @@ th {
 
 .artifact {
   border: 1px solid var(--line);
-  border-radius: 10px;
   padding: 0.65rem;
   background: #fbfcfc;
 }
@@ -360,7 +348,11 @@ th {
     white-space: normal;
   }
 
-  .tab {
+  .tabs {
     width: 100%;
+  }
+
+  .tabs .mat-button-toggle {
+    flex: 1 1 auto;
   }
 }

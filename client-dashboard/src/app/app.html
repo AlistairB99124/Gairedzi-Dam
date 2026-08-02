@@ -1,96 +1,96 @@
 <main class="page">
-  <header class="hero">
-    <p class="kicker">Gairedzi Dam Data Dashboard</p>
-    <h1>Elmer Results Explorer</h1>
-    <p class="subtext">
-      Review the latest FEM outcomes, compare sweep cases, and open result artifacts in one place.
-    </p>
-  </header>
+  <mat-toolbar class="hero-toolbar" role="banner">
+    <div class="hero-copy">
+      <p class="kicker">Gairedzi Dam Data Dashboard</p>
+      <h1>Elmer Results Explorer</h1>
+      <p class="subtext">
+        Review the latest FEM outcomes, compare sweep cases, and open result artifacts in one place.
+      </p>
+    </div>
+  </mat-toolbar>
 
-  <nav class="tabs" aria-label="Dashboard views">
-    <button type="button" class="tab" [class.active]="activeTab() === 'summary'" (click)="setTab('summary')">
-      Elmer Summary
-    </button>
-    <button type="button" class="tab" [class.active]="activeTab() === 'artifacts'" (click)="setTab('artifacts')">
-      Plots & Files
-    </button>
-    <button type="button" class="tab" [class.active]="activeTab() === 'json'" (click)="setTab('json')">
-      JSON Data View
-    </button>
-  </nav>
+  <mat-button-toggle-group class="tabs" [value]="activeTab()" aria-label="Dashboard views">
+    <mat-button-toggle value="summary" (click)="setTab('summary')">Elmer Summary</mat-button-toggle>
+    <mat-button-toggle value="artifacts" (click)="setTab('artifacts')">Plots & Files</mat-button-toggle>
+    <mat-button-toggle value="json" (click)="setTab('json')">JSON Data View</mat-button-toggle>
+  </mat-button-toggle-group>
 
-  <section class="toolbar panel">
+  <mat-card class="toolbar panel">
     <div class="panel-header">
       <h2>Latest Run Status</h2>
-      <button type="button" class="btn" (click)="refresh()" [disabled]="isLoadingResults() || isLoadingJson()">
+      <button mat-flat-button color="primary" type="button" (click)="refresh()" [disabled]="isLoadingResults() || isLoadingJson()">
         {{ (isLoadingResults() || isLoadingJson()) ? 'Refreshing...' : 'Refresh Results' }}
       </button>
     </div>
     @if (lastLoadedAt()) {
       <p class="stamp">Loaded {{ lastLoadedAt() | date: 'medium' }}</p>
     }
-  </section>
+  </mat-card>
 
   @if (resultsError() && activeTab() !== 'json') {
-    <section class="panel state error" aria-live="polite">
+    <mat-card class="panel state error" aria-live="polite">
       <h3>Could not load Elmer result files</h3>
       <p>{{ resultsError() }}</p>
       <p>Expected files: <code>/results/stress_summary.json</code> and <code>/results/load_case_comparison.json</code></p>
-    </section>
+    </mat-card>
   } @else if (activeTab() !== 'json' && isLoadingResults()) {
-    <section class="panel state loading" aria-live="polite">
-      <div class="spinner" aria-hidden="true"></div>
+    <mat-card class="panel state loading" aria-live="polite">
+      <mat-spinner diameter="28"></mat-spinner>
       <p>Loading latest result artifacts...</p>
-    </section>
+    </mat-card>
   } @else if (activeTab() === 'summary' && stressSummary()) {
     <section class="summary-grid">
-      <article class="metric panel">
+      <mat-card class="metric panel">
         <h3>Max Tension (MPa)</h3>
         <p>{{ maxTensionMpa() | number: '1.3-3' }}</p>
-      </article>
-      <article class="metric panel">
+      </mat-card>
+      <mat-card class="metric panel">
         <h3>Max Compression (MPa)</h3>
         <p>{{ maxCompressionMpa() | number: '1.3-3' }}</p>
-      </article>
-      <article class="metric panel">
+      </mat-card>
+      <mat-card class="metric panel">
         <h3>Elements</h3>
         <p>{{ stressSummary()!.element_count }}</p>
-      </article>
-      <article class="metric panel">
+      </mat-card>
+      <mat-card class="metric panel">
         <h3>Tension Utilization</h3>
         <p>{{ (stressSummary()!.tension_utilization ?? 0) * 100 | number: '1.1-1' }}%</p>
-      </article>
-      <article class="metric panel">
+      </mat-card>
+      <mat-card class="metric panel">
         <h3>Gap vs Expected Tension</h3>
         <p>{{ tensionExpectedGapMpa() ?? 0 | number: '1.3-3' }}</p>
-      </article>
+      </mat-card>
     </section>
 
-    <section class="panel viewer" aria-live="polite">
+    <mat-card class="panel viewer" aria-live="polite">
       <div class="panel-header">
         <h2>Load Case Sweep</h2>
       </div>
 
       <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Case</th>
-              <th>Tailwater (m)</th>
-              <th>Max Tension (MPa)</th>
-              <th>Max Compression (MPa)</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of sweepCases(); track row.case_name) {
-              <tr>
-                <td>{{ row.case_name }}</td>
-                <td>{{ row.downstream_head_m | number: '1.1-1' }}</td>
-                <td>{{ row.max_tension_mpa | number: '1.3-3' }}</td>
-                <td>{{ row.max_compression_mpa | number: '1.3-3' }}</td>
-              </tr>
-            }
-          </tbody>
+        <table mat-table [dataSource]="sweepCases()" class="sweep-table mat-elevation-z0">
+          <ng-container matColumnDef="case">
+            <th mat-header-cell *matHeaderCellDef>Case</th>
+            <td mat-cell *matCellDef="let row">{{ row.case_name }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tailwater">
+            <th mat-header-cell *matHeaderCellDef>Tailwater (m)</th>
+            <td mat-cell *matCellDef="let row">{{ row.downstream_head_m | number: '1.1-1' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tension">
+            <th mat-header-cell *matHeaderCellDef>Max Tension (MPa)</th>
+            <td mat-cell *matCellDef="let row">{{ row.max_tension_mpa | number: '1.3-3' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="compression">
+            <th mat-header-cell *matHeaderCellDef>Max Compression (MPa)</th>
+            <td mat-cell *matCellDef="let row">{{ row.max_compression_mpa | number: '1.3-3' }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="sweepColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: sweepColumns;"></tr>
         </table>
       </div>
 
@@ -98,35 +98,35 @@
         <h3>Raw Stress Summary JSON</h3>
         <pre>{{ stressSummary() | json }}</pre>
       </div>
-    </section>
+    </mat-card>
   } @else if (activeTab() === 'artifacts') {
-    <section class="panel file-list" aria-label="Result artifacts">
+    <mat-card class="panel file-list" aria-label="Result artifacts">
       <div class="panel-header">
         <h2>Artifacts</h2>
       </div>
 
       <div class="artifact-grid">
         @for (artifact of artifacts(); track artifact.path) {
-          <article class="artifact">
+          <mat-card class="artifact">
             <h3>{{ artifact.title }}</h3>
             @if (artifact.kind === 'image') {
               <img [src]="artifact.path" [alt]="artifact.title" loading="lazy" />
             }
             <a [href]="artifact.path" target="_blank" rel="noopener">Open file</a>
-          </article>
+          </mat-card>
         }
       </div>
-    </section>
+    </mat-card>
   } @else if (activeTab() === 'json') {
     <section class="layout">
-      <aside class="panel file-list" aria-label="JSON files">
+      <mat-card class="panel file-list" aria-label="JSON files">
         <div class="panel-header">
           <h2>Data Files</h2>
         </div>
 
-        <ul>
+        <mat-nav-list>
           @for (file of files(); track file.filename) {
-            <li>
+            <mat-list-item>
               <button
                 type="button"
                 class="file-btn"
@@ -137,12 +137,12 @@
                 <span class="name">{{ file.title }}</span>
                 <span class="meta">{{ file.filename }}</span>
               </button>
-            </li>
+            </mat-list-item>
           }
-        </ul>
-      </aside>
+        </mat-nav-list>
+      </mat-card>
 
-      <section class="panel viewer" aria-live="polite">
+      <mat-card class="panel viewer" aria-live="polite">
         <div class="panel-header">
           <h2>{{ selectedFileTitle() }}</h2>
         </div>
@@ -154,31 +154,31 @@
           </div>
         } @else if (isLoadingJson()) {
           <div class="state loading">
-            <div class="spinner" aria-hidden="true"></div>
+            <mat-spinner diameter="28"></mat-spinner>
             <p>Loading {{ selectedFilename() }}...</p>
           </div>
         } @else if (jsonSummary() && data() !== null) {
           <div class="summary-grid compact">
-            <article class="metric panel">
+            <mat-card class="metric panel">
               <h3>Root Type</h3>
               <p>{{ jsonSummary()!.rootType }}</p>
-            </article>
-            <article class="metric panel">
+            </mat-card>
+            <mat-card class="metric panel">
               <h3>Object Keys</h3>
               <p>{{ jsonSummary()!.objectKeys }}</p>
-            </article>
-            <article class="metric panel">
+            </mat-card>
+            <mat-card class="metric panel">
               <h3>Array Nodes</h3>
               <p>{{ jsonSummary()!.arrayNodes }}</p>
-            </article>
-            <article class="metric panel">
+            </mat-card>
+            <mat-card class="metric panel">
               <h3>Primitive Values</h3>
               <p>{{ jsonSummary()!.primitiveValues }}</p>
-            </article>
-            <article class="metric panel">
+            </mat-card>
+            <mat-card class="metric panel">
               <h3>Max Depth</h3>
               <p>{{ jsonSummary()!.maxDepth }}</p>
-            </article>
+            </mat-card>
           </div>
 
           <div class="json-block">
@@ -186,7 +186,7 @@
             <pre>{{ data() | json }}</pre>
           </div>
         }
-      </section>
+      </mat-card>
     </section>
   }
 </main>

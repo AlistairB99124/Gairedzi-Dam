@@ -1,5 +1,12 @@
 import { CommonModule, JsonPipe } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 type DashboardTab = 'summary' | 'artifacts' | 'json';
@@ -56,11 +63,22 @@ interface ResultArtifact {
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, JsonPipe],
+  imports: [
+    CommonModule,
+    JsonPipe,
+    MatToolbarModule,
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatListModule,
+    MatTableModule
+  ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
+  protected readonly sweepColumns = ['case', 'tailwater', 'tension', 'compression'];
   protected readonly activeTab = signal<DashboardTab>('summary');
 
   protected readonly files = signal<DataFile[]>([
