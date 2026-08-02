@@ -5,7 +5,12 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$zipUrl = "https://github.com/AlistairB99124/Gairedzi-Dam/archive/refs/heads/main.zip"
+$zipUrls = @(
+    "https://github.com/AlistairB99124/Gairedzi-Dam/archive/refs/heads/main.zip",
+    "https://codeload.github.com/AlistairB99124/Gairedzi-Dam/zip/refs/heads/main",
+    "https://github.com/AlistairB99124/Gairedzi/archive/refs/heads/main.zip",
+    "https://codeload.github.com/AlistairB99124/Gairedzi/zip/refs/heads/main"
+)
 $normalizedRoot = $RootDir.Trim().Trim('"').TrimEnd([char[]]@([char]'\', [char]'/'))
 if ([string]::IsNullOrWhiteSpace($normalizedRoot)) {
     throw "RootDir is empty or invalid."
@@ -28,7 +33,22 @@ New-Item -ItemType Directory -Force -Path $extractDir | Out-Null
 
 try {
     Write-Host "Downloading latest project ZIP..."
-    Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+    $downloaded = $false
+    foreach ($url in $zipUrls) {
+        try {
+            Write-Host "Trying: $url"
+            Invoke-WebRequest -Uri $url -OutFile $zipPath -UseBasicParsing
+            $downloaded = $true
+            break
+        }
+        catch {
+            Write-Host "Download failed from this URL, trying next..."
+        }
+    }
+
+    if (-not $downloaded) {
+        throw "Could not download update ZIP from any known URL. Check repository visibility, branch name, or network access."
+    }
 
     Write-Host "Extracting ZIP..."
     Expand-Archive -Path $zipPath -DestinationPath $extractDir -Force
