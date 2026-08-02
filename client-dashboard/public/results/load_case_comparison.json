@@ -1,0 +1,44 @@
+[
+  {
+    "case_name": "tailwater_0p0m",
+    "downstream_head_m": 0.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  },
+  {
+    "case_name": "tailwater_2p0m",
+    "downstream_head_m": 2.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  },
+  {
+    "case_name": "tailwater_5p0m",
+    "downstream_head_m": 5.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  },
+  {
+    "case_name": "tailwater_10p0m",
+    "downstream_head_m": 10.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  },
+  {
+    "case_name": "tailwater_15p0m",
+    "downstream_head_m": 15.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  },
+  {
+    "case_name": "tailwater_20p0m",
+    "downstream_head_m": 20.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  },
+  {
+    "case_name": "tailwater_29p0m",
+    "downstream_head_m": 29.0,
+    "max_tension_mpa": 1.1465063524728807,
+    "max_compression_mpa": -0.5573984468408009
+  }
+]

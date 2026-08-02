@@ -3,6 +3,8 @@
 __pycache__/
 
 results/
+!client-dashboard/public/results/
+!client-dashboard/public/results/**
 
 Elmer/mesh/
 Elmer/mesh_out/

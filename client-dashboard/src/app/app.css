@@ -53,6 +53,33 @@
   max-width: 64ch;
 }
 
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.tab {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab.active {
+  border-color: var(--accent);
+  background: #e9f5f2;
+  color: var(--accent-strong);
+}
+
+.toolbar {
+  margin-bottom: 0.9rem;
+}
+
 .layout {
   display: grid;
   grid-template-columns: 320px 1fr;
@@ -155,6 +182,10 @@
   margin-bottom: 0.9rem;
 }
 
+.summary-grid.compact {
+  grid-template-columns: repeat(5, minmax(110px, 1fr));
+}
+
 .metric {
   margin: 0;
   border: 1px solid var(--line);
@@ -226,6 +257,66 @@
   gap: 0.65rem;
 }
 
+.table-wrap {
+  overflow: auto;
+  margin-bottom: 0.9rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 560px;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.artifact-grid {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.artifact {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem;
+  background: #fbfcfc;
+}
+
+.artifact h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+}
+
+.artifact img {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  margin-bottom: 0.5rem;
+}
+
+.artifact a {
+  color: var(--accent-strong);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.artifact a:hover {
+  text-decoration: underline;
+}
+
 .spinner {
   width: 18px;
   height: 18px;
@@ -267,5 +358,9 @@
 
   .stamp {
     white-space: normal;
+  }
+
+  .tab {
+    width: 100%;
   }
 }
