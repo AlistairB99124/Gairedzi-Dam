@@ -166,6 +166,7 @@ function Resolve-ElmerByRecursiveSearch {
 function Try-WingetInstallPackage {
     param([string]$PackageId)
 
+    Write-Host "Trying winget package: $PackageId"
     $null = & winget install --id $PackageId --exact --accept-package-agreements --accept-source-agreements
     if ($LASTEXITCODE -eq 0) {
         return $true
@@ -173,6 +174,30 @@ function Try-WingetInstallPackage {
 
     Write-Host "winget install for $PackageId returned exit code $LASTEXITCODE"
     return $false
+}
+
+function Get-ElmerWingetPackageIds {
+    $ids = New-Object System.Collections.Generic.List[string]
+    $ids.Add("CSC.Elmer")
+    $ids.Add("ElmerFEM.Elmer")
+    $ids.Add("Elmer.Elmer")
+
+    $null = & winget source update
+
+    $searchOutput = & winget search --query Elmer --source winget --accept-source-agreements 2>&1
+    $lines = ($searchOutput | Out-String).Split([Environment]::NewLine)
+    foreach ($line in $lines) {
+        if ($line -match "\s([A-Za-z0-9][A-Za-z0-9\._\-]+)\s+[0-9A-Za-z\.-]+\s+winget\s*$") {
+            $candidate = $Matches[1]
+            if ($candidate -match "(?i)elmer") {
+                if (-not $ids.Contains($candidate)) {
+                    $ids.Add($candidate)
+                }
+            }
+        }
+    }
+
+    return $ids.ToArray()
 }
 
 function Invoke-Python {
@@ -235,13 +260,33 @@ function Ensure-Elmer {
         throw "Elmer is missing and winget is not available. Install Elmer manually and rerun."
     }
 
+    $packageIds = Get-ElmerWingetPackageIds
+    if (-not $packageIds -or $packageIds.Count -eq 0) {
+        throw "No Elmer package candidates were found via winget search."
+    }
+
     $installed = $false
-    $packageIds = @("CSC.Elmer", "ElmerFEM.Elmer", "Elmer.Elmer")
     foreach ($pkg in $packageIds) {
         try {
             if (Try-WingetInstallPackage -PackageId $pkg) {
                 $installed = $true
-                break
+            }
+
+            Refresh-PathFromSystem
+            $grid = Find-Exe "ElmerGrid"
+            $solver = Find-Exe "ElmerSolver"
+            if ($grid -and $solver) {
+                return @{ Grid = $grid; Solver = $solver; Home = $null; Modules = $null }
+            }
+
+            $resolved = Resolve-ElmerFromCommonPaths
+            if ($resolved) {
+                return $resolved
+            }
+
+            $resolved = Resolve-ElmerByRecursiveSearch
+            if ($resolved) {
+                return $resolved
             }
         }
         catch {
