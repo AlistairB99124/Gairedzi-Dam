@@ -10,15 +10,25 @@
   </mat-toolbar>
 
   <mat-button-toggle-group class="tabs" [value]="activeTab()" aria-label="Dashboard views">
-    <mat-button-toggle value="summary" (click)="setTab('summary')">Elmer Summary</mat-button-toggle>
-    <mat-button-toggle value="artifacts" (click)="setTab('artifacts')">Plots & Files</mat-button-toggle>
-    <mat-button-toggle value="json" (click)="setTab('json')">JSON Data View</mat-button-toggle>
+    <mat-button-toggle value="summary" (click)="setTab('summary')">
+      <mat-icon fontSet="material-icons-outlined">analytics</mat-icon>
+      Elmer Summary
+    </mat-button-toggle>
+    <mat-button-toggle value="artifacts" (click)="setTab('artifacts')">
+      <mat-icon fontSet="material-icons-outlined">photo_library</mat-icon>
+      Plots & Files
+    </mat-button-toggle>
+    <mat-button-toggle value="json" (click)="setTab('json')">
+      <mat-icon fontSet="material-icons-outlined">data_object</mat-icon>
+      JSON Data View
+    </mat-button-toggle>
   </mat-button-toggle-group>
 
   <mat-card class="toolbar panel">
     <div class="panel-header">
       <h2>Latest Run Status</h2>
       <button mat-flat-button color="primary" type="button" (click)="refresh()" [disabled]="isLoadingResults() || isLoadingJson()">
+        <mat-icon fontSet="material-icons-outlined">refresh</mat-icon>
         {{ (isLoadingResults() || isLoadingJson()) ? 'Refreshing...' : 'Refresh Results' }}
       </button>
     </div>
@@ -112,7 +122,10 @@
             @if (artifact.kind === 'image') {
               <img [src]="artifact.path" [alt]="artifact.title" loading="lazy" />
             }
-            <a [href]="artifact.path" target="_blank" rel="noopener">Open file</a>
+            <a [href]="artifact.path" target="_blank" rel="noopener">
+              <mat-icon fontSet="material-icons-outlined">open_in_new</mat-icon>
+              Open file
+            </a>
           </mat-card>
         }
       </div>

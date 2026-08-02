@@ -74,6 +74,14 @@ h1 {
   margin-bottom: 0.9rem;
 }
 
+.tabs .mat-icon {
+  margin-right: 0.35rem;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  vertical-align: text-bottom;
+}
+
 .toolbar {
   margin-bottom: 0.9rem;
 }
@@ -158,6 +166,10 @@ h1 {
 .file-btn .meta {
   font-size: 0.78rem;
   color: var(--muted);
+}
+
+button[mat-flat-button] .mat-icon {
+  margin-right: 0.3rem;
 }
 
 .viewer {
@@ -299,6 +311,15 @@ h1 {
   color: var(--accent-strong);
   font-weight: 600;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.artifact a .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
 }
 
 .artifact a:hover {
