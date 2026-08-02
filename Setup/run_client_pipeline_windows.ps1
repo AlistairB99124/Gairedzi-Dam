@@ -134,6 +134,27 @@ function Resolve-ElmerFromCommonPaths {
     return $null
 }
 
+function Resolve-ElmerInRoot {
+    param([string]$Root)
+
+    if (-not (Test-Path $Root)) {
+        return $null
+    }
+
+    $gridHit = Get-ChildItem -Path $Root -Filter "ElmerGrid.exe" -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $gridHit) {
+        return $null
+    }
+
+    $binDir = Split-Path -Parent $gridHit.FullName
+    $solver = Join-Path $binDir "ElmerSolver.exe"
+    if (Test-Path $solver) {
+        return @{ Grid = $gridHit.FullName; Solver = $solver; Home = $null; Modules = $null }
+    }
+
+    return $null
+}
+
 function Resolve-ElmerByRecursiveSearch {
     $roots = @(
         "$env:SystemDrive\CSC",
@@ -144,23 +165,45 @@ function Resolve-ElmerByRecursiveSearch {
     )
 
     foreach ($root in $roots) {
-        if (-not (Test-Path $root)) {
-            continue
-        }
-
-        $gridHit = Get-ChildItem -Path $root -Filter "ElmerGrid.exe" -File -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
-        if (-not $gridHit) {
-            continue
-        }
-
-        $binDir = Split-Path -Parent $gridHit.FullName
-        $solver = Join-Path $binDir "ElmerSolver.exe"
-        if (Test-Path $solver) {
-            return @{ Grid = $gridHit.FullName; Solver = $solver; Home = $null; Modules = $null }
+        $resolved = Resolve-ElmerInRoot -Root $root
+        if ($resolved) {
+            return $resolved
         }
     }
 
     return $null
+}
+
+function Install-ElmerFromOfficialZip {
+    $depsDir = Join-Path $RootDir ".deps\elmer"
+    $resolved = Resolve-ElmerInRoot -Root $depsDir
+    if ($resolved) {
+        return $resolved
+    }
+
+    New-Item -ItemType Directory -Force -Path $depsDir | Out-Null
+
+    $zipUrl = "https://www.nic.funet.fi/pub/sci/physics/elmer/bin/windows/ElmerFEM-nogui-nompi-Windows-AMD64.zip"
+    $zipPath = Join-Path $env:TEMP "ElmerFEM-nogui-nompi-Windows-AMD64.zip"
+
+    Write-Host "Downloading Elmer fallback package from official mirror..."
+    Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath -UseBasicParsing
+
+    if (-not (Test-Path $zipPath)) {
+        throw "Elmer fallback download failed: $zipPath was not created."
+    }
+
+    Write-Host "Extracting Elmer fallback package..."
+    Remove-Item -Recurse -Force $depsDir
+    New-Item -ItemType Directory -Force -Path $depsDir | Out-Null
+    Expand-Archive -Path $zipPath -DestinationPath $depsDir -Force
+
+    $resolved = Resolve-ElmerInRoot -Root $depsDir
+    if ($resolved) {
+        return $resolved
+    }
+
+    throw "Downloaded Elmer package but did not find ElmerGrid.exe and ElmerSolver.exe after extraction."
 }
 
 function Try-WingetInstallPackage {
@@ -295,7 +338,8 @@ function Ensure-Elmer {
     }
 
     if (-not $installed) {
-        throw "Unable to install Elmer automatically. Please install Elmer manually and ensure ElmerGrid and ElmerSolver are in PATH."
+        Write-Host "winget could not install Elmer. Trying official Elmer binary package fallback..."
+        return Install-ElmerFromOfficialZip
     }
 
     Refresh-PathFromSystem
@@ -315,7 +359,8 @@ function Ensure-Elmer {
         return $resolved
     }
 
-    throw "Elmer install completed but binaries were not found. Open a new terminal session and retry. If still failing, install Elmer manually and add its bin folder (containing ElmerGrid.exe and ElmerSolver.exe) to PATH."
+    Write-Host "winget install completed but binaries were not found. Trying official Elmer binary package fallback..."
+    return Install-ElmerFromOfficialZip
 }
 
 if (-not (Test-Path $ElmerDir)) {
