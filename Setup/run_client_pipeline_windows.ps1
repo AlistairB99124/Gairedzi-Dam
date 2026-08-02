@@ -14,6 +14,20 @@ function Write-Section([string]$Message) {
     Write-Host "==== $Message ===="
 }
 
+function Invoke-CommandChecked {
+    param(
+        [string]$Exe,
+        [string[]]$Args,
+        [string]$StepName
+    )
+
+    & $Exe @Args
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        throw "$StepName failed with exit code $exitCode"
+    }
+}
+
 function Find-Exe([string]$Name) {
     $cmd = Get-Command $Name -ErrorAction SilentlyContinue
     if ($cmd) {
@@ -256,6 +270,10 @@ function Invoke-Python {
     }
     $allArgs += $Args
     & $PythonCmd.Exe @allArgs
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -ne 0) {
+        throw "Python command failed with exit code $exitCode"
+    }
 }
 
 function Ensure-Python {
@@ -394,8 +412,8 @@ try {
         throw "Virtual environment python not found at $VenvPython"
     }
 
-    & $VenvPython -m pip install --upgrade pip
-    & $VenvPython -m pip install -r (Join-Path $RootDir "client_requirements.txt")
+    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "--upgrade", "pip") -StepName "pip upgrade"
+    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt")) -StepName "dependency install"
 
     Write-Section "2/6 Detecting Elmer"
     $elmer = Ensure-Elmer
@@ -403,7 +421,7 @@ try {
     Write-Host "Using ElmerSolver: $($elmer.Solver)"
 
     Write-Section "3/6 Rebuilding geometry and mesh from Data"
-    & $VenvPython (Join-Path $ElmerDir "build_curved_dam_geometry.py")
+    Invoke-CommandChecked -Exe $VenvPython -Args @((Join-Path $ElmerDir "build_curved_dam_geometry.py")) -StepName "geometry build"
 
     Write-Section "4/6 Running ElmerGrid"
     $MeshDir = Join-Path $ElmerDir "mesh"
@@ -415,7 +433,7 @@ try {
 
     Push-Location $ElmerDir
     try {
-        & $elmer.Grid 14 2 "curved_dam_mesh.msh" -autoclean -out "mesh"
+        Invoke-CommandChecked -Exe $elmer.Grid -Args @("14", "2", "curved_dam_mesh.msh", "-autoclean", "-out", "mesh") -StepName "ElmerGrid"
     }
     finally {
         Pop-Location
@@ -424,17 +442,24 @@ try {
     Write-Section "5/6 Running ElmerSolver"
     Push-Location $ElmerDir
     try {
-        & $elmer.Solver "dam_model.sif"
+        Invoke-CommandChecked -Exe $elmer.Solver -Args @("dam_model.sif") -StepName "ElmerSolver"
     }
     finally {
         Pop-Location
     }
 
     Write-Section "6/6 Running stress post-processing"
-    & $VenvPython (Join-Path $ElmerDir "analyze_stress.py")
+    Invoke-CommandChecked -Exe $VenvPython -Args @((Join-Path $ElmerDir "analyze_stress.py")) -StepName "stress post-processing"
 
     $Report = Join-Path $ElmerDir "results\client_stress_report.png"
     $Summary = Join-Path $ElmerDir "results\stress_summary.json"
+
+    if (-not (Test-Path $Summary)) {
+        throw "Expected summary output missing: $Summary"
+    }
+    if (-not (Test-Path $Report)) {
+        throw "Expected report output missing: $Report"
+    }
 
     Write-Host ""
     Write-Host "Pipeline complete."
