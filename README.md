@@ -78,6 +78,45 @@ Note: current scripts/task file use local Elmer paths under `/Users/alistairdavi
 
 ## Quick Start
 
+## One-Click Client Runner (Windows - recommended)
+
+For non-technical use on Windows, use the double-click launcher:
+
+- `Run_Gairedzi_Windows.bat`
+
+What it does automatically:
+
+1. checks for Python and installs it with winget if needed
+2. creates/updates `.venv`
+3. installs Python dependencies (`numpy`, `matplotlib`)
+4. checks for Elmer (`ElmerGrid`, `ElmerSolver`)
+5. attempts winget-based Elmer install if Elmer is missing
+6. rebuilds geometry/mesh from current `Data/` files
+7. runs Elmer solver and stress post-processing
+8. opens the client stress report image when finished
+
+Client workflow (Windows):
+
+1. update raw input data under `Data/`
+2. double-click `Run_Gairedzi_Windows.bat`
+3. wait for completion and review:
+   - `Elmer/results/client_stress_report.png`
+   - `Elmer/results/stress_summary.json`
+
+Important notes:
+
+- first run may show Windows prompts for installation permissions
+- internet access is required for first-time dependency installation
+- if winget cannot install Elmer automatically, install Elmer manually and ensure `ElmerGrid` and `ElmerSolver` are in PATH
+
+Run logs are saved under `results/logs/` for traceability and reproducibility.
+
+## One-Click Client Runner (macOS)
+
+If you also run the model on macOS, use:
+
+- `Run_Gairedzi.command`
+
 ### Option A: VS Code task
 
 Run task:
