@@ -21,10 +21,63 @@ function Find-Exe([string]$Name) {
     return $null
 }
 
+function Refresh-PathFromSystem {
+    $machinePath = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+    $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+    if ($machinePath -and $userPath) {
+        $env:Path = "$machinePath;$userPath"
+    }
+    elseif ($machinePath) {
+        $env:Path = $machinePath
+    }
+    elseif ($userPath) {
+        $env:Path = $userPath
+    }
+}
+
+function Resolve-PythonCommand {
+    $pyLauncher = Find-Exe "py"
+    if ($pyLauncher) {
+        try {
+            & $pyLauncher -3 --version | Out-Null
+            return @{ Exe = $pyLauncher; PrefixArgs = @("-3") }
+        }
+        catch {
+        }
+    }
+
+    $pythonExe = Find-Exe "python"
+    if ($pythonExe) {
+        try {
+            & $pythonExe --version | Out-Null
+            return @{ Exe = $pythonExe; PrefixArgs = @() }
+        }
+        catch {
+        }
+    }
+
+    return $null
+}
+
+function Invoke-Python {
+    param(
+        [hashtable]$PythonCmd,
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Args
+    )
+
+    $allArgs = @()
+    if ($PythonCmd.PrefixArgs) {
+        $allArgs += $PythonCmd.PrefixArgs
+    }
+    $allArgs += $Args
+    & $PythonCmd.Exe @allArgs
+}
+
 function Ensure-Python {
-    $python = Find-Exe "python"
-    if ($python) {
-        return $python
+    $pythonCmd = Resolve-PythonCommand
+    if ($pythonCmd) {
+        return $pythonCmd
     }
 
     Write-Host "Python not found. Attempting install with winget..."
@@ -34,11 +87,12 @@ function Ensure-Python {
     }
 
     & winget install --id Python.Python.3.11 --exact --accept-package-agreements --accept-source-agreements
-    $python = Find-Exe "python"
-    if (-not $python) {
+    Refresh-PathFromSystem
+    $pythonCmd = Resolve-PythonCommand
+    if (-not $pythonCmd) {
         throw "Python installation did not complete correctly. Install Python manually and rerun."
     }
-    return $python
+    return $pythonCmd
 }
 
 function Ensure-Elmer {
@@ -72,6 +126,7 @@ function Ensure-Elmer {
         throw "Unable to install Elmer automatically. Please install Elmer manually and ensure ElmerGrid and ElmerSolver are in PATH."
     }
 
+    Refresh-PathFromSystem
     $grid = Find-Exe "ElmerGrid"
     $solver = Find-Exe "ElmerSolver"
     if (-not $grid -or -not $solver) {
@@ -94,11 +149,11 @@ try {
     Write-Host "============================================================"
 
     Write-Section "1/6 Preparing Python"
-    $python = Ensure-Python
+    $pythonCmd = Ensure-Python
 
     $VenvDir = Join-Path $RootDir ".venv"
     if (-not (Test-Path $VenvDir)) {
-        & $python -m venv $VenvDir
+        Invoke-Python $pythonCmd -m venv $VenvDir
     }
 
     $VenvPython = Join-Path $VenvDir "Scripts\python.exe"
