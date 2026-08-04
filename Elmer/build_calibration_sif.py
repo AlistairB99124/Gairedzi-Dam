@@ -69,6 +69,7 @@ End
 def build_sif(config: dict) -> str:
     material = config["material"]
     water = config["water"]
+    uplift = config.get("uplift", {})
 
     rho_concrete = float(material["density_kg_m3"])
     e_modulus = float(material["youngs_modulus_pa"])
@@ -85,6 +86,9 @@ def build_sif(config: dict) -> str:
     use_gravity = _bool_scale(bool(config["include_gravity"]))
     use_hydro = _bool_scale(bool(config["include_hydrostatic"]))
     use_crest = _bool_scale(bool(config["include_crest_surcharge"]))
+    use_uplift = _bool_scale(bool(config.get("include_uplift", False)))
+    uplift_head = float(uplift.get("head_m", 0.0))
+    uplift_pressure_factor = float(uplift.get("pressure_factor", 1.0))
 
     gravity_bodyforce = -rho_concrete * g * use_gravity
 
@@ -106,6 +110,7 @@ def build_sif(config: dict) -> str:
       f"-{rho_water} * {g} * ({downstream_surface_z} - tx) * (tx < {downstream_surface_z}) * {use_hydro}"
     )
     crest_force = -rho_water * g * h_crest * use_crest
+    uplift_force = rho_water * g * uplift_head * uplift_pressure_factor * use_uplift
 
     support_block = _support_block(config)
     results_dir = config.get("results_directory", "results_calibration")
@@ -187,6 +192,12 @@ Boundary Condition 4
   Name = \"CrestOverflowSurcharge\"
   Target Boundaries(1) = 4
   Normal Force = Real {crest_force}
+End
+
+Boundary Condition 7
+  Name = "BaseUplift"
+  Target Boundaries(1) = 1
+  Normal Force = Real {uplift_force}
 End
 
 Solver 2

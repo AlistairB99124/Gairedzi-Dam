@@ -13,3 +13,19 @@ Elmer/mesh_refined_check/
 Elmer/mesh_thickness_check/
 
 Elmer/dam_model_tailwater_*.sif
+
+# Elmer diagnostics and calibration sweep artifacts
+Elmer/combined_sweep/
+Elmer/hydro_sweep/
+Elmer/restraint_sweep/
+Elmer/toggle_matrix/
+Elmer/uplift_matrix/
+Elmer/hydro_tune/
+
+# Generated diagnostics result folders
+Elmer/results_combined_sweep/
+Elmer/results_hydro_sweep/
+Elmer/results_restraint_sweep/
+Elmer/results_toggle/
+Elmer/results_uplift_matrix/
+Elmer/results_hydro_tune/

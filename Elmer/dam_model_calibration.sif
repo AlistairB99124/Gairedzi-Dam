@@ -100,6 +100,12 @@ Boundary Condition 4
   Normal Force = Real -19620.0
 End
 
+Boundary Condition 7
+  Name = "BaseUplift"
+  Target Boundaries(1) = 1
+  Normal Force = Real 0.0
+End
+
 Solver 2
   Equation = "ResultOutput"
   Procedure = "ResultOutputSolve" "ResultOutputSolver"
