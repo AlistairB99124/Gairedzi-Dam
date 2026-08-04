@@ -1,0 +1,47 @@
+{
+  "source_vtu": "/Users/alistairdavies/Projects/Gairedzi/Elmer/results_sweep/datum_4p0m_head_25p0m/dam_results_t0001.vtu",
+  "element_count": 1224,
+  "max_tensile_principal_stress_pa": {
+    "element_id": 527,
+    "value_pa": 16017761.96121373,
+    "centroid_xyz_m": [
+      33.26714169688794,
+      71.51716097580884,
+      27.27070706490189
+    ]
+  },
+  "max_compressive_principal_stress_pa": {
+    "element_id": 823,
+    "value_pa": -8095450.865514951,
+    "centroid_xyz_m": [
+      71.66025879736125,
+      32.956347868245196,
+      27.645739920967266
+    ]
+  },
+  "independent_affine_check": {
+    "max_tensile_principal_stress_pa": {
+      "element_id": 648,
+      "value_pa": 1014957.0716670402
+    },
+    "max_compressive_principal_stress_pa": {
+      "element_id": 690,
+      "value_pa": -1340900.4467537964
+    }
+  },
+  "note": "Positive principal stress indicates tension. Negative principal stress indicates compression.",
+  "tensile_strength_pa": 2000000.0,
+  "tension_utilization": 8.008880980606865,
+  "client_expected_tension_mpa": 1.2,
+  "client_expected_compression_mpa": -3.33,
+  "detailing_assessment": {
+    "critical_zone": "crest",
+    "notes": [
+      "Model uses a base wall thickness of 4.00 m.",
+      "Model includes a crest-thickening surrogate: +1.00 m over the top 2.00 m of wall height.",
+      "Model does not include galleries, fillets, or abutment transition stiffening.",
+      "Model uses compliant base springs, explicit abutment spring restraints, and surrogate curved-wall geometry.",
+      "Critical tension lies in the upper 20% of the wall height, so crest-detail simplifications are likely influencing local stress concentration."
+    ]
+  }
+}
