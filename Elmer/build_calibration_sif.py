@@ -80,6 +80,7 @@ def build_sif(config: dict) -> str:
     h_up = float(water["upstream_head_m"])
     h_down = float(water["downstream_head_m"])
     h_crest = float(water["crest_head_m"])
+    crest_overflow_pressure_pa = water.get("crest_overflow_pressure_pa")
     pressure_datum_z = float(water.get("pressure_datum_z_m", 0.0))
     target_peak_upstream_pa = water.get("target_peak_upstream_pressure_pa")
 
@@ -92,11 +93,11 @@ def build_sif(config: dict) -> str:
 
     gravity_bodyforce = -rho_concrete * g * use_gravity
 
+    implied_peak_upstream_pa = rho_water * g * h_up
     if target_peak_upstream_pa is not None:
-      implied_peak_upstream_pa = rho_water * g * h_up
       if abs(float(target_peak_upstream_pa) - implied_peak_upstream_pa) > 1.0:
-        print(
-          "Warning: target_peak_upstream_pressure_pa does not match rho*g*upstream_head_m. "
+        raise ValueError(
+          "target_peak_upstream_pressure_pa must equal rho*g*upstream_head_m at the pressure datum. "
           f"target={float(target_peak_upstream_pa):.3f} Pa, implied={implied_peak_upstream_pa:.3f} Pa"
         )
 
@@ -109,11 +110,23 @@ def build_sif(config: dict) -> str:
     downstream_expr = (
       f"-{rho_water} * {g} * ({downstream_surface_z} - tx) * (tx < {downstream_surface_z}) * {use_hydro}"
     )
-    crest_force = -rho_water * g * h_crest * use_crest
+    if crest_overflow_pressure_pa is not None:
+      crest_force = -float(crest_overflow_pressure_pa) * use_crest
+    else:
+      crest_force = -rho_water * g * h_crest * use_crest
     uplift_force = rho_water * g * uplift_head * uplift_pressure_factor * use_uplift
 
     support_block = _support_block(config)
     results_dir = config.get("results_directory", "results_calibration")
+
+    uplift_block = ""
+    if use_uplift > 0.0:
+      uplift_block = f'''Boundary Condition 7
+    Name = "BaseUplift"
+    Target Boundaries(1) = 1
+    Normal Force = Real {uplift_force}
+  End
+  '''
 
     return f"""Header
   CHECK KEYWORDS Warn
@@ -176,6 +189,7 @@ Boundary Condition 2
   Name = \"UpstreamHydrostaticPressure\"
   Target Boundaries(1) = 2
   ! Hydrostatic datum-aware expression: pressure_datum_z_m + upstream_head_m defines free-surface elevation.
+  ! At tx = pressure_datum_z_m, applied pressure is rho*g*upstream_head_m = {implied_peak_upstream_pa:.3f} Pa.
   Normal Force = Variable Coordinate 3
     Real MATC \"{upstream_expr}\"
 End
@@ -194,11 +208,7 @@ Boundary Condition 4
   Normal Force = Real {crest_force}
 End
 
-Boundary Condition 7
-  Name = "BaseUplift"
-  Target Boundaries(1) = 1
-  Normal Force = Real {uplift_force}
-End
+{uplift_block}
 
 Solver 2
   Equation = \"ResultOutput\"

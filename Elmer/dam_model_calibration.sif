@@ -54,11 +54,11 @@ Material 1
 End
 
 Boundary Condition 1
-  Name = "BedrockBaseSpring"
+  Name = "BedrockBaseFixed"
   Target Boundaries(1) = 1
-  Spring 1 = Real 10000000000.0
-  Spring 2 = Real 10000000000.0
-  Spring 3 = Real 50000000000.0
+  Displacement 1 = Real 0.0
+  Displacement 2 = Real 0.0
+  Displacement 3 = Real 0.0
 End
 
 Boundary Condition 5
@@ -82,6 +82,7 @@ Boundary Condition 2
   Name = "UpstreamHydrostaticPressure"
   Target Boundaries(1) = 2
   ! Hydrostatic datum-aware expression: pressure_datum_z_m + upstream_head_m defines free-surface elevation.
+  ! At tx = pressure_datum_z_m, applied pressure is rho*g*upstream_head_m = 284490.000 Pa.
   Normal Force = Variable Coordinate 3
     Real MATC "-1000.0 * 9.81 * (33.0 - tx) * (tx < 33.0) * 1.0"
 End
@@ -97,14 +98,10 @@ End
 Boundary Condition 4
   Name = "CrestOverflowSurcharge"
   Target Boundaries(1) = 4
-  Normal Force = Real -19620.0
+  Normal Force = Real -20000.0
 End
 
-Boundary Condition 7
-  Name = "BaseUplift"
-  Target Boundaries(1) = 1
-  Normal Force = Real 0.0
-End
+
 
 Solver 2
   Equation = "ResultOutput"

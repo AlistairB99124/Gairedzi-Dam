@@ -1,6 +1,6 @@
 {
   "results_directory": "results_calibration",
-  "support_type": "spring",
+  "support_type": "fixed",
   "include_gravity": true,
   "include_hydrostatic": true,
   "include_crest_surcharge": true,
@@ -16,7 +16,8 @@
     "upstream_head_m": 29.0,
     "target_peak_upstream_pressure_pa": 284490.0,
     "downstream_head_m": 2.0,
-    "crest_head_m": 2.0
+    "crest_head_m": 2.0,
+    "crest_overflow_pressure_pa": 20000.0
   },
   "support": {
     "base_spring": [10000000000.0, 10000000000.0, 50000000000.0],
