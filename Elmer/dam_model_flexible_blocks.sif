@@ -51,11 +51,14 @@ Solver 1
 End
 
 Material 1
-  Name = "Concrete"
-  Youngs Modulus = 3.5e10
+  Name = "ConcreteBlockAssemblyEffective"
+  ! Block assembly flexibility approximation:
+  ! The dam is modeled as block-built concrete with joints/mortar, represented as
+  ! a reduced effective continuum stiffness relative to monolithic concrete.
+  ! Monolithic E from client input is 3.5e10 Pa; effective E uses factor 0.60.
+  Youngs Modulus = 2.1e10
   Poisson Ratio = 0.2
   Density = 2400
-  ! For a realistic cracking assessment, replace this starter elastic material with a nonlinear concrete-damage model.
 End
 
 Boundary Condition 1
@@ -112,7 +115,6 @@ End
 Solver 2
   Equation = "ResultOutput"
   Procedure = "ResultOutputSolve" "ResultOutputSolver"
-  Output File Name = "dam_results"
+  Output File Name = "dam_results_flexible"
   Vtu Format = Logical True
 End
-

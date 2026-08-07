@@ -1,0 +1,46 @@
+{
+  "source_vtu": "results/dam_results_flexible_t0001.vtu",
+  "element_count": 8448,
+  "max_tensile_principal_stress_pa": {
+    "element_id": 3905,
+    "value_pa": 2857219.266250194,
+    "centroid_xyz_m": [
+      54.47591800587987,
+      56.30626524429655,
+      5.345405766917653
+    ]
+  },
+  "max_compressive_principal_stress_pa": {
+    "element_id": 2124,
+    "value_pa": -4618446.500630917,
+    "centroid_xyz_m": [
+      33.13680744921419,
+      74.45815765220964,
+      12.702776365670456
+    ]
+  },
+  "independent_affine_check": {
+    "max_tensile_principal_stress_pa": {
+      "element_id": 2113,
+      "value_pa": 3200451.8897092547
+    },
+    "max_compressive_principal_stress_pa": {
+      "element_id": 4420,
+      "value_pa": -4224318.3135921005
+    }
+  },
+  "note": "Positive principal stress indicates tension. Negative principal stress indicates compression.",
+  "tensile_strength_pa": 2000000.0,
+  "tension_utilization": 1.428609633125097,
+  "client_expected_tension_mpa": 1.2,
+  "client_expected_compression_mpa": -3.33,
+  "detailing_assessment": {
+    "critical_zone": "body",
+    "notes": [
+      "Model uses a base wall thickness of 4.00 m.",
+      "Model includes a crest-thickening surrogate: +1.00 m over the top 2.00 m of wall height.",
+      "Model does not include galleries, fillets, or abutment transition stiffening.",
+      "Model uses compliant base springs, explicit abutment spring restraints, and surrogate curved-wall geometry."
+    ]
+  }
+}

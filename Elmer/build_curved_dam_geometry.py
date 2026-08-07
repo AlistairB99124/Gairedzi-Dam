@@ -6,18 +6,30 @@ import math
 
 root = Path(__file__).resolve().parent.parent
 input_path = root / "Data" / "Dam_Base_Contours.json"
+grid_controls_path = root / "Data" / "Computational_Grid_Controls.json"
 out_dir = Path(__file__).resolve().parent
 
 with input_path.open() as fh:
     data = json.load(fh)
 
+with grid_controls_path.open() as fh:
+    grid_controls = json.load(fh)
+
+
+def get_grid_control_value(control_name):
+    for row in grid_controls:
+        if row.get("Mesh Control") == control_name:
+            return float(row["Client Value"])
+    raise ValueError(f"Missing mesh control '{control_name}' in {grid_controls_path}")
+
 radius = 80.0
 wall_thickness = 4.0
 dam_height = 30.0
-mesh_size = 1.0
+mesh_size = get_grid_control_value("Global Element Size")
+target_block_size = mesh_size
 arch_subdivisions = 3
 vertical_layers = 4
-thickness_layers = 2
+thickness_layers = max(1, int(round(wall_thickness / target_block_size)))
 crest_detail_height = 2.0
 crest_extra_thickness = 1.0
 abutment_segment_count = 6
@@ -41,6 +53,54 @@ def interpolate_profile_points(profile_points, subdivisions):
                 }
             )
     refined.append(profile_points[-1].copy())
+    return refined
+
+
+def interpolate_profile_points_by_target_spacing(profile_points, target_spacing_m):
+    if len(profile_points) < 2:
+        return profile_points
+
+    start_station = profile_points[0]["station"]
+    end_station = profile_points[-1]["station"]
+    if end_station <= start_station:
+        return profile_points
+
+    resampled_stations = [start_station]
+    station = start_station + target_spacing_m
+    while station < end_station:
+        resampled_stations.append(station)
+        station += target_spacing_m
+    if resampled_stations[-1] != end_station:
+        resampled_stations.append(end_station)
+
+    refined = []
+    segment_index = 0
+    for sample_station in resampled_stations:
+        while (
+            segment_index < len(profile_points) - 2
+            and sample_station > profile_points[segment_index + 1]["station"]
+        ):
+            segment_index += 1
+
+        start = profile_points[segment_index]
+        end = profile_points[segment_index + 1]
+        delta_station = end["station"] - start["station"]
+        if abs(delta_station) < 1.0e-12:
+            fraction = 0.0
+        else:
+            fraction = (sample_station - start["station"]) / delta_station
+
+        refined.append(
+            {
+                "station": sample_station,
+                "theta": start["theta"] + fraction * (end["theta"] - start["theta"]),
+                "x": start["x"] + fraction * (end["x"] - start["x"]),
+                "y": start["y"] + fraction * (end["y"] - start["y"]),
+                "base_z": start["base_z"] + fraction * (end["base_z"] - start["base_z"]),
+                "crest_z": start["crest_z"] + fraction * (end["crest_z"] - start["crest_z"]),
+            }
+        )
+
     return refined
 
 
@@ -105,8 +165,14 @@ for row in rows:
         }
     )
 
-points = interpolate_profile_points(profile_points, arch_subdivisions)
+points = interpolate_profile_points_by_target_spacing(profile_points, target_block_size)
+if len(points) <= len(profile_points):
+    points = interpolate_profile_points(profile_points, arch_subdivisions)
 assign_normals(points)
+
+local_heights = [point["crest_z"] - point["base_z"] for point in points]
+average_height = sum(local_heights) / len(local_heights)
+vertical_layers = max(1, int(round(average_height / target_block_size)))
 
 csv_path = out_dir / "curved_dam_centerline.csv"
 with csv_path.open("w", newline="") as fh:
@@ -226,6 +292,7 @@ meta_path.write_text(
             "wall_thickness_m": wall_thickness,
             "dam_height_m": dam_height,
             "mesh_size_m": mesh_size,
+            "target_block_size_m": target_block_size,
             "thickness_layers": thickness_layers,
             "crest_detail_height_m": crest_detail_height,
             "crest_extra_thickness_m": crest_extra_thickness,
