@@ -308,8 +308,10 @@ function Invoke-Python {
 function Ensure-Python {
     param([bool]$InstallIfMissing = $true)
 
+    Write-Host "Checking for Python 3..."
     $pythonCmd = Resolve-PythonCommand
     if ($pythonCmd) {
+        Write-Host "Python found: $($pythonCmd.Exe)"
         return $pythonCmd
     }
 
@@ -323,12 +325,18 @@ function Ensure-Python {
         throw "Python is missing and winget is not available. Install Python 3 manually and rerun."
     }
 
-    $null = & winget install --id Python.Python.3.11 --exact --accept-package-agreements --accept-source-agreements
+    Write-Host "Installing Python via winget (non-interactive)..."
+    $null = & winget install --id Python.Python.3.11 --exact --accept-package-agreements --accept-source-agreements --disable-interactivity
+    if ($LASTEXITCODE -ne 0) {
+        throw "winget Python install failed with exit code $LASTEXITCODE"
+    }
     Refresh-PathFromSystem
+    Write-Host "Re-checking Python availability..."
     $pythonCmd = Resolve-PythonCommand
     if (-not $pythonCmd) {
         throw "Python installation did not complete correctly. Open a new terminal and rerun. If it still fails, disable the Microsoft Store python app-execution alias and install Python 3.11+ manually."
     }
+    Write-Host "Python installed: $($pythonCmd.Exe)"
     return $pythonCmd
 }
 
@@ -445,18 +453,23 @@ try {
         Remove-Item -Recurse -Force $VenvDir
     }
     if (-not (Test-Path $VenvDir)) {
+        Write-Host "Creating virtual environment at: $VenvDir"
         Invoke-Python $pythonCmd -m venv $VenvDir
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to create virtual environment at $VenvDir"
         }
+    } else {
+        Write-Host "Using existing virtual environment: $VenvDir"
     }
 
     if (-not (Test-Path $VenvPython)) {
         throw "Virtual environment python not found at $VenvPython"
     }
 
-    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "--upgrade", "pip") -StepName "pip upgrade"
-    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt")) -StepName "dependency install"
+    Write-Host "Upgrading pip in virtual environment..."
+    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "--upgrade", "pip", "--disable-pip-version-check", "--no-input") -StepName "pip upgrade"
+    Write-Host "Installing Python dependencies from client_requirements.txt..."
+    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt"), "--disable-pip-version-check", "--no-input") -StepName "dependency install"
 
     Write-Section "2/6 Detecting Elmer"
     $elmer = Ensure-Elmer -InstallIfMissing:$installIfMissing
