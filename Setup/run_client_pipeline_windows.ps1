@@ -1,9 +1,9 @@
-$ErrorActionPreference = "Stop"
-
 param(
     [ValidateSet("setup", "run")]
     [string]$Mode = "run"
 )
+
+$ErrorActionPreference = "Stop"
 
 $SetupDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RootDir = Split-Path -Parent $SetupDir
