@@ -1,6 +1,6 @@
 Header
   CHECK KEYWORDS Warn
-  Mesh DB "/Users/alistairdavies/Projects/Gairedzi/Elmer/mesh" "/"
+  Mesh DB "mesh" "/"
   Include Path ""
   Results Directory "results_sweep/datum_4p0m_head_25p0m"
 End

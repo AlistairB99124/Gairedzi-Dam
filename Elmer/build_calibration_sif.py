@@ -6,7 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 CONFIG_PATH = ROOT / "calibration_case.json"
 OUTPUT_PATH = ROOT / "dam_model_calibration.sif"
-MESH_PATH = str((ROOT / "mesh").resolve())
+MESH_PATH = "mesh"
 
 
 def _bool_scale(flag: bool) -> float:
