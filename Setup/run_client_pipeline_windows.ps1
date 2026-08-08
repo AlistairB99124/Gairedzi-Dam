@@ -44,11 +44,11 @@ function Save-SetupState {
 function Invoke-CommandChecked {
     param(
         [string]$Exe,
-        [string[]]$Args,
+        [string[]]$CommandArgs,
         [string]$StepName
     )
 
-    & $Exe @Args
+    & $Exe @CommandArgs
     $exitCode = $LASTEXITCODE
     if ($exitCode -ne 0) {
         throw "$StepName failed with exit code $exitCode"
@@ -290,14 +290,14 @@ function Invoke-Python {
     param(
         [hashtable]$PythonCmd,
         [Parameter(ValueFromRemainingArguments = $true)]
-        [string[]]$Args
+        [string[]]$RemainingArgs
     )
 
     $allArgs = @()
     if ($PythonCmd.PrefixArgs) {
         $allArgs += $PythonCmd.PrefixArgs
     }
-    $allArgs += $Args
+    $allArgs += $RemainingArgs
     & $PythonCmd.Exe @allArgs
     $exitCode = $LASTEXITCODE
     if ($exitCode -ne 0) {
@@ -467,11 +467,11 @@ try {
     }
 
     Write-Host "Checking pip in virtual environment..."
-    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "--version") -StepName "pip version check"
+    Invoke-CommandChecked -Exe $VenvPython -CommandArgs @("-m", "pip", "--version") -StepName "pip version check"
 
     Write-Host "Upgrading pip in virtual environment (best effort, fast-fail network settings)..."
     try {
-        Invoke-CommandChecked -Exe $VenvPython -Args @(
+        Invoke-CommandChecked -Exe $VenvPython -CommandArgs @(
             "-m", "pip", "install", "--upgrade", "pip",
             "--disable-pip-version-check", "--no-input",
             "--retries", "1", "--timeout", "20", "--progress-bar", "off"
@@ -483,7 +483,7 @@ try {
     }
 
     Write-Host "Installing Python dependencies from client_requirements.txt..."
-    Invoke-CommandChecked -Exe $VenvPython -Args @(
+    Invoke-CommandChecked -Exe $VenvPython -CommandArgs @(
         "-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt"),
         "--disable-pip-version-check", "--no-input",
         "--retries", "1", "--timeout", "30", "--progress-bar", "off"
@@ -504,7 +504,7 @@ try {
     }
 
     Write-Section "3/6 Rebuilding geometry and mesh from Data"
-    Invoke-CommandChecked -Exe $VenvPython -Args @((Join-Path $ElmerDir "build_curved_dam_geometry.py")) -StepName "geometry build"
+    Invoke-CommandChecked -Exe $VenvPython -CommandArgs @((Join-Path $ElmerDir "build_curved_dam_geometry.py")) -StepName "geometry build"
 
     Write-Section "4/6 Running ElmerGrid"
     $MeshDir = Join-Path $ElmerDir "mesh"
@@ -516,7 +516,7 @@ try {
 
     Push-Location $ElmerDir
     try {
-        Invoke-CommandChecked -Exe $elmer.Grid -Args @("14", "2", "curved_dam_mesh.msh", "-autoclean", "-out", "mesh") -StepName "ElmerGrid"
+        Invoke-CommandChecked -Exe $elmer.Grid -CommandArgs @("14", "2", "curved_dam_mesh.msh", "-autoclean", "-out", "mesh") -StepName "ElmerGrid"
     }
     finally {
         Pop-Location
@@ -525,14 +525,14 @@ try {
     Write-Section "5/6 Running ElmerSolver"
     Push-Location $ElmerDir
     try {
-        Invoke-CommandChecked -Exe $elmer.Solver -Args @("dam_model.sif") -StepName "ElmerSolver"
+        Invoke-CommandChecked -Exe $elmer.Solver -CommandArgs @("dam_model.sif") -StepName "ElmerSolver"
     }
     finally {
         Pop-Location
     }
 
     Write-Section "6/6 Running stress post-processing"
-    Invoke-CommandChecked -Exe $VenvPython -Args @((Join-Path $ElmerDir "analyze_stress.py")) -StepName "stress post-processing"
+    Invoke-CommandChecked -Exe $VenvPython -CommandArgs @((Join-Path $ElmerDir "analyze_stress.py")) -StepName "stress post-processing"
 
     $Report = Join-Path $ElmerDir "results\client_stress_report.png"
     $Summary = Join-Path $ElmerDir "results\stress_summary.json"
