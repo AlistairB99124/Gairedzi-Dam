@@ -466,10 +466,28 @@ try {
         throw "Virtual environment python not found at $VenvPython"
     }
 
-    Write-Host "Upgrading pip in virtual environment..."
-    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "--upgrade", "pip", "--disable-pip-version-check", "--no-input") -StepName "pip upgrade"
+    Write-Host "Checking pip in virtual environment..."
+    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "--version") -StepName "pip version check"
+
+    Write-Host "Upgrading pip in virtual environment (best effort, fast-fail network settings)..."
+    try {
+        Invoke-CommandChecked -Exe $VenvPython -Args @(
+            "-m", "pip", "install", "--upgrade", "pip",
+            "--disable-pip-version-check", "--no-input",
+            "--retries", "1", "--timeout", "20", "--progress-bar", "off"
+        ) -StepName "pip upgrade"
+    }
+    catch {
+        Write-Host "WARNING: pip upgrade did not complete quickly; continuing with existing pip."
+        Write-Host "Reason: $($_.Exception.Message)"
+    }
+
     Write-Host "Installing Python dependencies from client_requirements.txt..."
-    Invoke-CommandChecked -Exe $VenvPython -Args @("-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt"), "--disable-pip-version-check", "--no-input") -StepName "dependency install"
+    Invoke-CommandChecked -Exe $VenvPython -Args @(
+        "-m", "pip", "install", "-r", (Join-Path $RootDir "client_requirements.txt"),
+        "--disable-pip-version-check", "--no-input",
+        "--retries", "1", "--timeout", "30", "--progress-bar", "off"
+    ) -StepName "dependency install"
 
     Write-Section "2/6 Detecting Elmer"
     $elmer = Ensure-Elmer -InstallIfMissing:$installIfMissing
