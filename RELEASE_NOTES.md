@@ -1,5 +1,11 @@
 # Release Notes
 
+## Unreleased
+
+Client-facing improvements:
+- Improved `update.bat` for ZIP-downloaded folders by adding incremental patch updates after a one-time baseline refresh.
+- Added automatic fallback to full ZIP refresh when incremental patch update cannot be applied.
+
 ## 1.2.0 (2026-08-02)
 
 Client-facing improvements:

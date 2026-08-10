@@ -106,6 +106,12 @@ Setup and run are now separated:
 - `update.bat`: updates from GitHub for both cloned repos and ZIP-downloaded folders
 - `VERSION`: current release number shown by run and update scripts
 
+Windows update behavior:
+
+- Git clone: uses `git fetch` + `git pull --ff-only`
+- ZIP-downloaded folder: first update performs a one-time baseline ZIP refresh, then future updates use incremental patch mode (only changed files)
+- fallback safety: if incremental patch mode fails, updater falls back to full ZIP refresh automatically
+
 What it does automatically:
 
 1. checks for Python and installs it with winget if needed

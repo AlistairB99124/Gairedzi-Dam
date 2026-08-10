@@ -19,18 +19,18 @@ echo.
 git rev-parse --is-inside-work-tree >nul 2>&1
 if errorlevel 1 (
   echo No git repository detected.
-  echo Updating from public ZIP package...
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT_DIR%\Setup\update_from_zip.ps1" -RootDir "%ROOT_DIR%"
+  echo Updating from public patch feed...
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT_DIR%\Setup\update_incremental.ps1" -RootDir "%ROOT_DIR%"
   if errorlevel 1 (
     echo.
-    echo ZIP update failed.
+    echo Update failed.
     echo.
     pause
     exit /b 1
   )
 
   echo.
-  echo ZIP update complete.
+  echo Update complete.
   echo.
   pause
   exit /b 0

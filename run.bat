@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 set ROOT_DIR=%~dp0
 set SETUP_FLAG=%ROOT_DIR%\.deps\setup_complete.flag
@@ -75,11 +75,25 @@ if errorlevel 1 (
     if defined PARAVIEW_EXE (
       echo.
       echo Opening result in ParaView...
-      start "" "%PARAVIEW_EXE%" "%RESULT_VTU%"
+
+      if exist "!PARAVIEW_EXE!" (
+        rem Launch from ParaView's bin directory to avoid DLL/working-dir issues.
+        for %%D in ("!PARAVIEW_EXE!") do set "PARAVIEW_DIR=%%~dpD"
+        start "" /D "!PARAVIEW_DIR!" "!PARAVIEW_EXE!" "!RESULT_VTU!"
+
+        rem If start fails silently, try PowerShell Start-Process as a fallback.
+        if errorlevel 1 (
+          powershell -NoProfile -ExecutionPolicy Bypass -Command "Start-Process -FilePath '!PARAVIEW_EXE!' -ArgumentList @('!RESULT_VTU!') -WorkingDirectory '!PARAVIEW_DIR!'"
+        )
+      ) else (
+        echo.
+        echo ParaView path was resolved but executable is missing:
+        echo !PARAVIEW_EXE!
+      )
     ) else (
       echo.
       echo ParaView was not found. Install ParaView to open:
-      echo %RESULT_VTU%
+      echo !RESULT_VTU!
     )
   ) else (
     echo.
