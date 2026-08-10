@@ -49,17 +49,26 @@ if errorlevel 1 (
   )
 
   if defined RESULT_VTU (
-    where paraview >nul 2>&1
-    if not errorlevel 1 (
-      set "PARAVIEW_EXE=paraview"
-    ) else (
+    rem Prefer concrete install paths, then PATH lookup.
+    if exist "C:\Program Files\ParaView 6.2.0\bin\paraview.exe" (
+      set "PARAVIEW_EXE=C:\Program Files\ParaView 6.2.0\bin\paraview.exe"
+    )
+
+    if not defined PARAVIEW_EXE (
       for /f "delims=" %%P in ('dir /b /s "C:\Program Files\ParaView*\bin\paraview.exe" 2^>nul') do (
         if not defined PARAVIEW_EXE set "PARAVIEW_EXE=%%P"
       )
-      if not defined PARAVIEW_EXE (
-        for /f "delims=" %%P in ('dir /b /s "C:\Program Files (x86)\ParaView*\bin\paraview.exe" 2^>nul') do (
-          if not defined PARAVIEW_EXE set "PARAVIEW_EXE=%%P"
-        )
+    )
+
+    if not defined PARAVIEW_EXE (
+      for /f "delims=" %%P in ('dir /b /s "C:\Program Files (x86)\ParaView*\bin\paraview.exe" 2^>nul') do (
+        if not defined PARAVIEW_EXE set "PARAVIEW_EXE=%%P"
+      )
+    )
+
+    if not defined PARAVIEW_EXE (
+      for /f "delims=" %%P in ('where paraview 2^>nul') do (
+        if not defined PARAVIEW_EXE set "PARAVIEW_EXE=%%P"
       )
     )
 
