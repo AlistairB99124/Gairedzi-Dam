@@ -30,8 +30,8 @@ target_block_size = mesh_size
 arch_subdivisions = 3
 vertical_layers = 4
 thickness_layers = max(1, int(round(wall_thickness / target_block_size)))
-crest_detail_height = 2.0
-crest_extra_thickness = 1.0
+crest_detail_height = 0.0
+crest_extra_thickness = 0.0
 abutment_segment_count = 6
 
 
